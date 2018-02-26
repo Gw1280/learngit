@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>我是报告列表</title>
+		<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css"/>
+		<link rel="stylesheet" type="text/css" href="css/rep_left.css"/>
+		
+		<script src="js/jquery-3.2.1.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/jquery.cookie.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/bootstrap.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/angular.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/rep_left.js" type="text/javascript" charset="utf-8"></script>
+		<script src="funJs/rep_left_fun.js" type="text/javascript" charset="utf-8"></script>
+	</head>
+	<!--
+    	作者：1598344045@qq.com
+    	时间：2017-12-07
+    	描述： 整个rep开头的页面已全部废弃，暂时都不做更改
+    -->
+	<body ng-app="myapp">
+		<div class="container" ng-controller="myctrl">
+			<div class="row">
+				<div class="col-lg-12 col-md-12 col-xs-12 col-sm-12 text-center">
+					<div class="panel panel-info">
+						<div class="panel-heading">
+							<h3 class="panel-title text-left">报告列表</h3>
+						</div>
+						<div class="panel-body">
+							<table class="table table-hover" >
+								<!--这个地方包括tr在内全部由服务器获取，此处为测试用-->
+								<tr id="{{x.ExamID}}" class="" ng-repeat="x in list" ng-click="rep_fun(x)">
+									<td id="" class="hot_left_td1">{{x.ExamID}}</td>
+								</tr>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

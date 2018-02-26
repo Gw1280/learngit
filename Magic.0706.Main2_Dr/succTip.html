@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<link rel="icon" type="text/css" href="img/logosmall.png"/>
+		<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css"/>
+		<script src="funJs/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+		<meta charset="UTF-8">
+		<title>跳转页面</title>
+	</head>
+	<style type="text/css">
+		body{
+			font-size: 1.8rem;
+			margin: 15px;
+		}
+		#count{
+			color: #00bfff;
+		}
+	</style>
+	<body>
+		<p>上传成功，即将在&nbsp;<span id="count">3</span>&nbsp;秒后跳转到首页……</p>
+		<a href="main_bootstrap.html" style="text-decoration: underline;">转到首页</a>
+	</body>
+	<script type="text/javascript">
+		var couTime=3;
+		var co=setInterval('counT()',1000);
+		function counT () {
+			if (couTime>0) {
+				$('#count').html(couTime);				
+				couTime=couTime-1;
+			} else{
+				clearInterval(co);
+				location.href='main_bootstrap.html';
+			}
+		}
+		$(document).ready(function () {
+			window.history.forward(1);
+		})
+	</script>
+</html>

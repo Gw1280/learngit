@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css"/>
+		
+		<script src="funJs/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/bootstrap.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/jquery.cookie.js" type="text/javascript" charset="utf-8"></script>
+		<script src="funJs/Common.js" type="text/javascript" charset="utf-8"></script>
+		<style type="text/css">
+			body{
+				overflow: hidden;
+			}
+			.panel-title{
+				font-size: 23px;
+			}
+			thead,tbody{
+				font-size: 17px;
+			}
+			#pa_1{
+				margin-top: 10px;
+			}
+			.userC_1,.docC_1{
+				cursor: pointer;
+			}
+			#th5{
+				width: 15%;
+			}
+			#DISarea{
+				position: absolute;
+				margin-top: -600px;
+				width: 30%;
+				left: 50%;
+				margin-left: -15%;
+				height: 450px;
+				display:none;
+				border: 1px solid black;
+				z-index: 666;
+			}
+			#ppd{
+				font-size: 17px;
+				font-weight: 700;
+				margin: 0;
+			}
+			#chDR{
+				border-bottom: 1px solid black;
+				height: 300px;
+			}
+			#chDR tbody{
+				height: 260px;
+				display: table-row-group;
+				overflow: auto;
+			}
+			.table{
+				margin-bottom: 0;
+			}
+			#toprev{
+				margin-bottom: 10px;
+				margin-left: 30%;
+			}
+			.gray,.gray:hover,.gray:active,.gray:focus{
+				color: gray;
+				cursor: default;
+				text-decoration: none;
+				border: none;
+			}
+			.mubu{
+				display: block;
+				position: absolute;
+				width: 100%;
+				height: 150%;
+				margin-top: -70%;
+				z-index: 555; 
+				background-color:rgba(0,0,0,0.5);
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<div class="row">
+				<div class="col-lg-12 col-md-12 col-sm-12">
+					<div class="panel panel-info" id="pa_1">
+						<div class="panel-heading">
+							<h2 class="panel-title text-left">待分配检查</h2>
+						</div>
+						<div class="panel-body">
+							<table class="table success table-hover" id="userCount">
+								<thead id="uChead">
+									<tr >
+										<th class="text-center">流水号</th>
+										<th class="text-center">姓名</th>
+										<th class="text-center">年龄</th>
+										<th class="text-center">性别</th>
+										<th class="text-center">检查时间</th>
+										<th id="th5" class="text-center">操作</th>
+									</tr>
+								</thead>
+								<tbody id="uCbody">
+									<tr id="" class="success">
+										<td id="" class="userC_1 text-center">20170329000002</td>
+										<td id="" class="userC_1 text-center">lucy</td>
+										<td id="" class="userC_1 text-center">1</td>
+										<td id="" class="userC_1 text-center">男</td>
+										<td id="" class="userC_1 text-center">2017-03-29</td>
+										<td id="" class="userC_1 text-center">
+											<button type="button" class="btn btn-default" id="toDIS">分配</button>
+											<button type="button" class="btn btn-default" id="toIGN">忽略</button>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+			
+			<div id="DISarea" class="panel panel-info" style="">
+				<div class="panel-heading">
+					<p id="ppd" class="text-left panel-title">选择专家</p>
+				</div>
+				<div class="panel-body">
+					<table class="table table-hover table-striped" id="chDR">
+						<thead>
+							<tr >
+								<th class="text-center" style="width: 45%;">姓名</th>
+								<th class="text-center" style="width: 45%;">待阅片数</th>
+							</tr>
+						</thead>
+						<tbody class="tb_dis">
+							
+							<tr id="" class="DrList">
+								<td id="" class="DrC_1 text-center">lucy</td>
+								<td id="" class="DrC_1 text-center">1</td>
+							</tr>
+							<tr id="" class="DrList">
+								<td id="" class="DrC_1 text-center">lucy</td>
+								<td id="" class="DrC_1 text-center">1</td>
+							</tr>
+							<tr id="" class="DrList">
+								<td id="" class="DrC_1 text-center">lucy</td>
+								<td id="" class="DrC_1 text-center">1</td>
+							</tr>
+							<tr id="" class="DrList">
+								<td id="" class="DrC_1 text-center">lucy</td>
+								<td id="" class="DrC_1 text-center">1</td>
+							</tr>
+							<tr id="" class="DrList">
+								<td id="" class="DrC_1 text-center">lucy</td>
+								<td id="" class="DrC_1 text-center">1</td>
+							</tr>
+						</tbody>
+					</table>
+					<button id="toprev" class="btn-link">上一页</button>
+					<span id="tonow" class="">1</span>/
+					<span id="tosub">3</span>&nbsp;
+					<button id="tonext" class="btn-link">下一页</button>
+					<button type="button" id="beSure" style="margin-left: 65%;" class="btn btn-info">确定</button>
+					<button type="button" id="beCancel" class="btn btn-info" style="margin-left: 3%;">取消</button>
+				</div>
+			</div>
+		</div>
+		<div class="mubu" style="display: none;">
+		</div>
+	</body>
+	<script type="text/javascript">
+		//因为此页面只有医生能访问，所以不需要加IDE验证和Authorization拆解
+		//页面暂未完成
+	$(document).ready(function () {
+		var checklist=new Array();
+		var ifHeight=$.cookie('ifHeight');
+		$('body').height(ifHeight);
+		$('body').height=ifHeight+'px';
+		$('#pa_1').height(ifHeight-100);
+	});
+		//获取可以对其阅片的医生数组,后两个参数可以没有，但必须有Hid
+		function getAccess (url,Hid,Pid,ExamID) {
+			if(!Pid){
+				Pid='00000000';
+			}
+			if (!ExamID) {
+				ExamID='00000000';
+			}
+			$.ajax({
+				type:"get",
+				url:'http://'+comServerIP+'/'+url+'/HospitalAccessableUsers/'+Hid+'/'+Pid+'/'+ExamID,
+				async:false,
+				headers:{'Authorization':$.cookie('Authorization')},
+				cache:false,
+				beforeSend:function(xhr){
+					xhr.setRequestHeader('XXX',$.cookie('ide'));
+				},
+				success:function (data) {
+					console.log(data);
+				},
+				error:function (XMLHttpRequest, textStatus, errorThrown) {
+					console.log(XMLHttpRequest.getAllResponseHeaders());
+				}
+			});
+		}
+		//添加待分配检查，a为检查信息数组
+		function addCount (a) {
+			var counts=a;
+			for (var i=0;i<counts.length;i++) {
+				var str='';
+				str+='<tr id="uCbody'+k+'" class="success">';
+				str+='<td class="userC_1 text-center">'+counts[i].userName+'</td>';
+				str+='<td class="userC_1 text-center">'+counts[i].sex+'</td>';
+				str+='<td class="userC_1 text-center">'+counts[i].age+'</td>';
+				str+='<td class="userC_1 text-center">'+counts[i].isCheck+'</td>';
+				str+='<td id="" class="userC_1 text-center">';
+				str+='<button type="button" class="btn btn-default" id="toDIS">分配</button>';
+				str+='<button type="button" class="btn btn-default" id="toIGN">忽略</button>';
+				str+='</td>';
+				str+='</tr>';
+				$('#uCbody').append(str);
+			}
+		}
+	</script>
+</html>

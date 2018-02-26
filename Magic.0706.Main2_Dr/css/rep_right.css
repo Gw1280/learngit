@@ -1,0 +1,12 @@
+@charset "utf-8";
+	.container{
+		width: 100%;
+	}
+	.col-lg-12{
+		padding: 0;
+		padding-top: 10px;
+	}
+	#rep_right_tittle{
+		font-family: "微软雅黑";
+		font-size: 1.5em;
+	}

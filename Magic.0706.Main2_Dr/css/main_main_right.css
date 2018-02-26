@@ -1,0 +1,41 @@
+	@charset "utf-8";
+	body{
+		padding: 0;
+		margin: 0;
+		overflow: hidden;
+		width: 100%;
+	}
+	img{
+		margin-top: 50px;
+		width: 160px;
+		height: 160px;
+	}
+	#right_name{
+		font-size: 1.5em;
+		font-weight: 700;
+		margin-top: 30px;
+		font-family: "微软雅黑";
+	}
+	#right_sex,#right_add{
+		font-family: "微软雅黑";
+		font-size: 1.2em;
+		color: gray;
+	}
+	#row1,#row2,#row3{
+		margin-top: 30px;
+	}
+	#row1,#row2{
+		font-family: "微软雅黑";
+		font-size: 1.2em;
+		color: gray;
+	}
+	#right_edit{
+		width: 100%;
+	}
+	#row4{
+		margin-top: 30px;
+	}
+	table{
+		font-family: "微软雅黑";
+		white-space: nowrap;
+	}

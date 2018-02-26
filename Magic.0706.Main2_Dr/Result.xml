@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root username="lucy" age="20" id="00000002" doctor="lucy" Gender="女">
+    <images>
+        <image0 imageName="2017-04-05-16-40-25" refImageName="" type="0" name="" acupoint="">
+            <rois name="">
+                <Roi0 userdata="0" type="line" name="">
+                    <pt x="119" y="145"/>
+                    <pt x="68" y="89"/>
+                </Roi0>
+            </rois>
+            <status CurMin="22.82" CurMax="29.17" Width="初始温宽" Percentage="0" PaletteName="0000_5"/>
+        </image0>
+        <image1 imageName="2017-04-05-16-40-26.jpg" refImageName="" type="0" name="" acupoint="">
+            <rois name="">
+                <Roi0 userdata="0" type="rect" name="">
+                    <pt x="168" y="111"/>
+                    <pt x="79" y="111"/>
+                    <pt x="79" y="52"/>
+                    <pt x="168" y="52"/>
+                </Roi0>
+            </rois>
+            <status CurMin="22.84" CurMax="29.21" Width="初始温宽" Percentage="0" PaletteName="0000_6"/>
+        </image1>
+        <image2 imageName="2017-04-05-16-40-27.jpg" refImageName="" type="0" name="" acupoint="">
+            <rois name="">
+                <Roi0 userdata="0" type="rect" name="">
+                    <pt x="167" y="123"/>
+                    <pt x="69" y="123"/>
+                    <pt x="69" y="93"/>
+                    <pt x="167" y="93"/>
+                </Roi0>
+            </rois>
+            <status CurMin="22.84" CurMax="29.13" Width="初始温宽" Percentage="0" PaletteName="0000_5"/>
+        </image2>
+    </images>
+    <result></result>
+    <warning>
+        <Red></Red>
+        <Orange></Orange>
+    </warning>
+</root>

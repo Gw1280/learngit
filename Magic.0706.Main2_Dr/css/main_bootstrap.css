@@ -1,0 +1,25 @@
+@charset "utf-8";
+	body{
+		font-family: "微软雅黑";
+	}
+	iframe{
+		width: 100%;
+		border-radius: 10px;
+		border: 1px solid black;
+	}
+	#footer{
+		background-color: rgba(177,207,247,0.3);
+		line-height: 10px;
+		height: 100%;
+	}
+	#text{
+		padding-top: 5px;
+	}
+	.row_nav{
+		background-color: #F8F8F8;
+		border-color: #E7E7E7;
+		border-bottom: 1px solid #ddd;
+	}
+	.nav-tabs{
+		border-bottom: 0;
+	}

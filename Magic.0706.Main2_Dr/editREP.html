@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>编写报告</title>
+		<link rel="icon" type="text/css" href="img/logosmall.png"/>
+		<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css"/>
+		
+		<script src="funJs/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/bootstrap.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/jquery.cookie.js" type="text/javascript" charset="utf-8"></script>
+		<script src="funJs/dom-to-image.js" type="text/javascript" charset="utf-8"></script>
+		<script src="funJs/Common.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/axjaxComm.js" type="text/javascript" charset="utf-8"></script>
+		<style type="text/css">
+			body{
+				font-family: "微软雅黑";
+				font-size: 1.8em;
+			}
+			#Afour,#clone_1{
+				width: 210mm;
+				height: 297mm;
+			}
+			#tittle{
+				font-size: 3em;
+			}
+			#nam,#se{
+				float: left;
+			}
+			#seriNu,#nam,#se,#ag{
+				margin: 0;
+			}
+			#seriNu{
+				font-size: 0.8em;
+			}
+			#hotList{
+				font-size: 1em;
+			}
+			#selfINFO{
+				line-height: 8mm;
+			}
+			#IDdiv{
+				padding-left: 15px;
+				padding-right: 15px;
+			}
+			#bott{
+				margin-top: 5mm;
+			}
+			#seriNum,#name,#sex,#age,#ID{
+				font-weight: 700;
+			}
+			.starow{
+				height: 150px;
+			}
+			.mwidth{
+				width: 200px;
+			}
+			.pwidth{
+				width: 12px;
+			}
+			.pwidth_2{
+				width: 13px;
+			}
+			.pdis{
+				margin-left: 3px;
+			}
+			.par{
+				float: left;
+				
+			}
+			.pardis{
+				padding-left: 15px;
+				margin-bottom: 15px;
+			}
+			#jielun{
+				margin-left: 15px;
+				width: 85%;
+				border: 2px solid rgb(185,209,234);
+				border-radius: 5px;
+				-webkit-border-radius: 5px;
+				-moz-border-radius: 5px;
+				resize: none;
+				margin-top: 5px;
+			}
+			.shuru{
+				border: 2px solid rgb(185,209,234);
+				width: 85%;
+				margin-left: 15px;
+				margin-top: 5px;
+				border-spacing: 2;
+				border-radius: 5px;
+				-webkit-border-radius: 5px;
+				-moz-border-radius: 5px;
+				
+			}
+			#sub{
+				margin-top: 50px;
+				margin-left: 43%;
+			}
+			.row{
+				margin: 0;
+				width: 100%;
+			}
+			p{
+				margin-bottom: 0px;
+			}
+		</style>
+	</head>
+	<body >
+		<div id="bk_1" style="float: left;height: 300px;">
+			
+		</div>
+		<div class="" id="Afour" style="border: 1px solid black;display: flex;float: left;">
+			<div class="row">
+				<div class="col-md-12 col-lg-12 col-sm-12 text-center">
+					<div class="">
+						<p id='tittle'>武汉市中医院</p>	
+					</div>
+					<div class="text-left" id="abc">
+							<p id="seriNu" >流水号:<span id="seriNum"></span></p>							
+					</div>
+					<div class="" style="border-bottom: 1px solid black;border-top: 1px solid black;" id="selfINFO">
+						<div class="col-lg-4 col-md-4 col-md-4">
+							<p id="nam">姓名:<span id='name'></span></p>
+						</div>
+						<div class="col-lg-4 col-md-4 col-md-4">
+							<p id="se">性别:<span id="sex"></span></p>
+						</div>
+						<div class="col-lg-4 col-md-4 col-md-4">
+							<p id="ag">年龄:<span id="age"></span></p>
+						</div>
+						<div class="text-left" id="IDdiv">
+							<p id="IDD">身份证号:<span id="ID"></span></p>
+						</div>
+					</div>
+					<div class="text-justify" id="hotList" style="border-bottom: 1px solid black;height: 520px;">
+						<p  style="padding-left: 15px;padding-right: 15px;">热图列表:</p>
+					</div>
+					<div class="">
+						<p></p>
+						<p style="float: left;font-weight: 700;margin-left: 10px;margin-top: 10px;">诊断结论:</p><textarea id="jielun" rows="5"></textarea><p></p>
+						<p style="float: left;font-weight: 700;margin-left: 10px;margin-top: 8px;">同意保持:</p><input type="text" id="baochi" class="shuru"/><p></p>
+						<p style="float: left;font-weight: 700;margin-left: 10px;margin-top: 8px;">预警信息:</p><input type="text" id="xinxi" class="shuru"/><p></p>
+						<p style="float: left;font-weight: 700;margin-left: 10px;margin-top: 8px;">红色预警:</p><input type="text" id="hongyujing" class="shuru"/><p></p>
+						<p style="float: left;font-weight: 700;margin-left: 10px;margin-top: 8px;">橙色预警:</p><input type="text" id="chengyujing" class="shuru"/>
+					</div>
+					<div class="" id="bott" style="padding-left: 15px;border-top: 1px solid black;">
+						<div class="text-left" style="float: left;margin-top: 10mm;" >
+							<p>注意: 以上结论仅供参考！</p>						
+						</div>
+						<div class="text-center"style="margin-top: 10mm;">
+							<p>医生签名:</p><span id="DC"></span>
+						</div>
+					</div>
+				</div>
+			</div>	
+		</div>
+		<div id="bk_2" style="height: 250px;display: flex;">
+			
+		</div>
+				<button type="button" id="sub" class="btn btn-info text-center">保存并上传</button>
+				<!--<canvas id="caTest" width="794px" height="1123px" style="border: 1px solid black;"></canvas>-->
+				<div id="con" style="margin-top: 200px;display: none;"></div>
+	</body>
+	<script type="text/javascript">
+		//因为此页面只有医生能访问，所以不需要加IDE验证和Authorization拆解
+	var I=new user_info();
+	var ser=$.cookie('ser');		//保存检查流水号
+	var Doc=$.cookie('Doc');		//医生姓名
+	var CID=$.cookie('checkID');	//检查ID
+	var ide=$.cookie('ide');
+	$(document).ready(function () {
+		var Bwid=$('body').width();
+		var Awid=$('#Afour').width();
+		if (Bwid-Awid<0) {
+			$('#bk_1,#bk_2').width(0).height(0);
+		} else{
+			$('#bk_1,#bk_2').width((Bwid-Awid)/2-4);
+		}
+		var hid=$.cookie('HID');
+		var pid=$.cookie('PID');
+		getuserIN(hid,pid,'Web');
+		getH();
+		$('#seriNum').html(ser);
+		$('#name').html(I.m_strName);
+		if (I.m_emsex==1||I.m_emsex=='1') {
+			$('#sex').html('男');
+		} else{
+			$('#sex').html('女');
+		};
+		$('#age').html(I.m_iAge);
+		$('#ID').html(I.m_strID);
+		getSRC();
+		$('#sub').on('click',function () {
+			processITE();
+			//toITEC(ITEC,CID,'Web',hid,pid);
+			alltojpg('Afour',hid,pid);
+			//toPNG(inDEX,IMGMs,names,hid,pid);
+			
+		})
+
+	});
+	//注：需在最后加上清除localstroage的方法，避免污染
+		var len=$.cookie('imgLEN');		//保存热图的数量
+		var IMGMs=new Array();
+		var inDEX=new Array();
+	function getSRC () {
+		var loc=window.localStorage;
+		var	dx=loc.getItem('inDEX');
+		var	dxs=dx.split(',');
+		for (var l=0;l<dxs.length;l++) {
+			inDEX.push(dxs[l]);
+		}
+		for(var i=0;i<len;i++){
+			var imgM=loc.getItem('imgms'+i);
+			IMGMs.push(imgM);
+			var imgP=loc.getItem('imgps'+i);
+			var imgT=loc.getItem('imgts'+i);
+			var str='';
+			str+='<div class="par pardis" id="libs'+i+'">'
+			str+='<img class="imgms starow mwidth" id="imgms'+i+'" src="'+imgM+'"';
+			str+='/>';
+			str+='<img class="imgps starow pwidth pdis" id="imgps'+i+'" src="'+imgP+'"';
+			str+='/>';
+			str+='<img class="imgts starow pwidth_2 pdis" style="" id="imgts'+i+'" src="'+imgT+'"';
+			str+='/>';
+			str+='</div>';
+			$('#hotList').append(str);
+		}
+		//loc.clear();
+	}
+	
+	
+	function getuserIN (HID,PID,url) {
+		if($.cookie('Authorization')){
+				$.ajax({
+			url:'http://'+comServerIP+'/'+url+'/PatientInfo'+'/'+HID+'/'+PID,   
+			headers:{"Authorization":$.cookie('Authorization')},	
+			type: "Get",
+			dataType: "JSON",
+			data:"{}",
+			async:false,
+			beforeSend:function(xhr){
+				xhr.setRequestHeader('XXX',ide);
+			},
+			success:function(data){
+				var s=new user_info (data.m_strPID,data.m_strName,data.m_strID,data.m_iAge,data.m_iHeight,data.m_iWeight,data.m_emsex,data.m_iStatus,data.m_strAuthUsers);
+				I=s;
+			},
+			
+			 error: function(XMLHttpRequest, textStatus, errorThrown) {
+				 alert(XMLHttpRequest.status);
+				 alert(XMLHttpRequest.readyState);
+				 alert(textStatus);
+				   },
+		});
+			}else{
+				window.parent.location.href='index.html';
+			}
+	};
+	function user_info (m_strPID,m_strName,m_strID,m_iAge,m_iHeight,m_iWeight,m_emsex,m_iStatus,m_strAuthUsers) {
+		this.m_strPID      =m_strPID      ;
+		this.m_strName     =m_strName     ;
+		this.m_strID       =m_strID       ;
+		this.m_iAge        =m_iAge        ;
+		this.m_iHeight     =m_iHeight     ;
+		this.m_iWeight     =m_iWeight     ;
+		this.m_emsex       =m_emsex       ;
+		this.m_iStatus     =m_iStatus     ;
+		this.m_strAuthUsers=m_strAuthUsers;
+	}
+	//获取到热图对象信息
+	var iteARRAY=new Array();
+	var iteLEN=$.cookie('ID_len');
+	function getH () {
+		var loc=window.localStorage;
+		for (var i=0;i<iteLEN;i++) {
+			var ite=loc.getItem('ite'+i);
+			iteARRAY.push(ite);
+		}
+	}
+	//对得到的热图对象信息进行处理
+	var ITEC='';		//保存xml格式的字符串
+	var names=new Array();
+	function processITE () {
+		var userName=I.m_strName;	//姓名
+		var age=I.m_iAge;			//年龄
+		var ID=I.m_strPID;			//ID
+		var DOC=Doc;				//医生
+		var sex;
+		//var imageNames=new Array();		//图片名数组
+		if (I.m_emsex==1||I.m_emsex=='1') {
+			sex='女';
+		} else{
+			sex='男';
+		}			//性别
+		var imgXML='';
+		for (var i=0;i<iteARRAY.length;i++) {
+			var unStr=iteARRAY[i].split('*');
+			var Names=unStr[1].split('/')
+			var NamesII=Names[Names.length-1];
+			var NamesIII=NamesII.split('.');
+			var pelete=unStr[2];			//调色板
+			var percn=unStr[4];				//调整的刻度值
+			var width;						//温窗
+			var TOP=Number(unStr[6]);
+			var BOT=Number(unStr[7]);
+			TOP=TOP.toFixed(2);				//最高温
+			BOT=BOT.toFixed(2);				//最低温
+			if (unStr[3]=='default') {
+				width='初始温宽'
+			} else{
+				width=unStr[3];
+			}
+			var imageName=NamesIII[0];		//图片名
+			names.push(imageName);
+			var serN=ser;					//图片流水号
+			var types=new Array();			//roi类型数组
+			var cons=new Array()			//roi内容数组
+			if (unStr[5]) {
+				var _a=unStr[5].replace(/[\[]/g,'');
+				Rois=_a.split(']');
+				for (var k=0;k<Rois.length;k++) {
+					if (Rois[k]!='') {
+					var RoisI=Rois[k].split('-');
+					var RoisC=RoisI[1].substring(1,RoisI[1].length-1);
+					var RoisCs=RoisC.split(',');
+					if (RoisI[0]=='1') {
+						types.push('rect');
+						var maxx=Math.max(Number(RoisCs[0]),Number(RoisCs[2]));
+						maxx=Math.round(maxx);
+						var minx=Math.min(Number(RoisCs[0]),Number(RoisCs[2]));
+						minx=Math.round(minx);
+						var maxy=Math.max(Number(RoisCs[1]),Number(RoisCs[3]));
+						maxy=Math.round(maxy);
+						var miny=Math.min(Number(RoisCs[1]),Number(RoisCs[3]));
+						miny=Math.round(miny);
+						var str='';
+							str+='<pt x="'+maxx+'" y="'+maxy+'" /> \r\n';
+							str+='<pt x="'+minx+'" y="'+maxy+'" /> \r\n';
+							str+='<pt x="'+minx+'" y="'+miny+'" /> \r\n';
+							str+='<pt x="'+maxx+'" y="'+miny+'" /> \r\n';
+						cons.push(str);	
+					}else if(RoisI[0]=='2'){
+						types.push('circle');
+						var XR=Number(RoisCs[2])-Number(RoisCs[0]);
+						var YR=Number(RoisCs[3])-Number(RoisCs[1]);
+						var tx=Number(RoisCs[0])-XR*2;
+						var ty=Number(RoisCs[1])-YR*2;
+						var TLx=Math.min(tx,RoisCs[0]);
+						var TLy=Math.min(ty,RoisCs[1]);
+						var BRx=Math.max(tx,RoisCs[0]);
+						var BRy=Math.max(ty,RoisCs[1]);
+						var MDx=(BRx+TLx)/2;
+						var MDy=(BRy+TLy)/2;
+						BRx=Math.round(BRx);
+						BRy=Math.round(BRy);
+						TLx=Math.round(TLx);
+						TLy=Math.round(TLy);
+						MDx=Math.round(MDx);
+						MDy=Math.round(MDy);
+						var str='';
+							str+='<pt x="'+BRx+'" y="'+BRy+'" /> \r\n';
+							str+='<pt x="'+TLx+'" y="'+BRy+'" /> \r\n';
+							str+='<pt x="'+TLx+'" y="'+TLy+'" /> \r\n';
+							str+='<pt x="'+BRx+'" y="'+TLy+'" /> \r\n';
+							str+='<pt x="'+MDx+'" y="'+BRy+'" /> \r\n';
+							str+='<pt x="'+TLx+'" y="'+MDy+'" /> \r\n';
+							str+='<pt x="'+MDx+'" y="'+TLy+'" /> \r\n';
+							str+='<pt x="'+BRx+'" y="'+MDy+'" /> \r\n';
+						cons.push(str);
+					}else if (RoisI[0]=='3') {
+						types.push('point');
+						var str='';
+							str+='<pt x="'+Math.round(RoisCs[0])+'" y="'+Math.round(RoisCs[1])+'" /> \r\n';
+						cons.push(str);
+					}else if (RoisI[0]=='4') {
+						types.push('line');
+						var str='';
+							str+='<pt x="'+Math.round(RoisCs[0])+'" y="'+Math.round(RoisCs[1])+'" /> \r\n';
+							str+='<pt x="'+Math.round(RoisCs[2])+'" y="'+Math.round(RoisCs[3])+'" /> \r\n';
+						cons.push(str);
+					}
+				}
+			}
+			}
+			imgXML+=' <image'+i+' imageName="'+imageName+'"  refImageName="" type="0" name="" acupoint=""> \r\n';
+			imgXML+=' <rois name=""> \r\n';
+			for (var z=0;z<types.length;z++) {
+				imgXML+='<Roi'+z+' userdata="0" type="'+types[z]+'" name=""> \r\n';
+                imgXML+=cons[z];
+                imgXML+='</Roi'+z+'> \r\n';
+			}
+			imgXML+='</rois> \r\n';
+			imgXML+='<status CurMin="'+BOT+'" CurMax="'+TOP+'" Width="'+width+'" Percentage="'+percn+'" PaletteName="'+pelete+'"/>';
+			imgXML+='</image'+i+'> \r\n';
+				
+		}
+		ITEC+='<?xml version="1.0" encoding="UTF-8"?> \r\n';
+		ITEC+='<root username="'+userName+'" age="'+age+'" id="'+ID+'" doctor="'+DOC+'" Gender="'+sex+'" SerialNum="'+ser+'"> \r\n';
+		ITEC+='<images width="'+$.cookie('iniWidth')+'" height="'+$.cookie('iniHeight')+'"> \r\n';
+		ITEC+=imgXML;
+		ITEC+='</images> \r\n';
+		ITEC+=' <result></result> \r\n';
+		ITEC+='<warning> \r\n';
+        ITEC+='<Red></Red> \r\n';
+        ITEC+='<Orange></Orange> \r\n';
+    	ITEC+='</warning> \r\n';
+		ITEC+='</root> \r\n';
+	}
+	//向服务器传送xml字符串,参数a为xml字符串,b为检查ID
+	
+	function toITEC (a,ExamID,url,HID,PID) {
+		$.ajax( {    
+			url:'http://'+comServerIP+'/'+url+'/RoiFileInfo/'+HID+'/'+PID+'/'+ExamID,
+			headers:{"Authorization":$.cookie('Authorization')},
+			type:'post',    
+			cache:false,    
+			data:a,
+			async:false,
+			beforeSend:	function(xhr){
+				xhr.setRequestHeader('XXX',ide);
+			},
+			success:function(data) {
+				//console.log(data);
+			},
+			error: function(XMLHttpRequest, textStatus, errorThrown) {
+				alert(XMLHttpRequest.status);
+				alert(XMLHttpRequest.readyState);
+				alert(textStatus);
+			}    
+		}); 
+	}
+	//将整张报告转化成jpg,a为需要转化的id
+	var IMG=new Image();
+	function alltojpg (a,HID,PID) {
+		var no=document.getElementById(a);
+		var s=$('#Afour').clone(false);
+		s.css('zoom',3);
+		s.css('border','0')
+		s.attr('id','clone_1');
+		$('#con').show();
+		$('#con').append(s);
+		var clo=document.getElementById("clone_1");
+		var x=$('#Afour').width()*2.5;
+		var y=$('#Afour').height()*2.5;			
+		var opt={width:x,height:y};
+		s.find('#jielun').css('border','1px solid transparent');
+		s.find('.shuru').css('border','1px solid transparent');
+		domtoimage.toPng(clo,opt).then(function (dataUrl) {
+			$('#con').hide();
+			//sendTO(dataUrl,HID,PID);	//测试时不向服务器上传数据,所以此处进行注释
+			var loc=window.localStorage;
+			loc.clear();
+			location.href='succTip.html';
+		});
+	}
+	//将整张报告作为图片传到服务器，a为整张报告图片的src（allSRC）
+	/*********************************************下面的两个将报告上传的方法还未获得Test版******************/
+	/*/*//*/*//*/*//*/*//*/*//*/*/
+	function sendTO (a,HID,PID) {
+		if (a) {
+			var Blob=getBlobBydataURI(a,'image/jpg');
+			var formData=new FormData();
+			formData.append('sendfile',Blob,CID+'报告.jpg');
+			var request=new XMLHttpRequest();
+			request.open('post','http://'+comServerIP+'/Web/UploadFiles/'+HID+'/'+PID+'/'+CID);
+			request.setRequestHeader('XXX',ide);
+			request.setRequestHeader('Authorization',$.cookie('Authorization'));
+			request.onreadystatechange=function(){
+				if (request.readyState==4) {
+					if (request.status==200) {
+						console.log('ok');	
+					}
+				}
+			}
+			request.send(formData);
+		}
+	}
+	//将其中的图片转换成png并上传,a为被选中的热图的下标数组（in DEX），b为被选中的热图地址数组（IMGMs）,C为全部热图的名称数组(names)
+	function toPNG (a,b,c,HID,PID) {
+		if (a[0]) {
+			for (var i=0;i<b.length;i++) {
+				var na=c[a[i]];
+				var Blob=getBlobBydataURI(b[i],'image/jpg');
+				var formData=new FormData();
+				formData.append('sendfile',Blob,na+'.jpg');
+				var request=new XMLHttpRequest();
+				request.open('post','http://'+comServerIP+'/Web/UploadFiles/'+HID+'/'+PID+'/'+CID);
+				request.setRequestHeader('XXX',ide);
+				request.setRequestHeader('Authorization',$.cookie('Authorization'));
+				request.onreadystatechange=function () {
+					if (request.readyState==4) {
+						if (request.status==200) {
+							console.log('ok');
+						}
+					}
+				}
+				request.send(formData);
+			}
+		}else{
+			return false;
+		}
+	}
+	//base64转blob
+	function getBlobBydataURI (dataURI,type) {
+		var binare=atob(dataURI.split(',')[1]);
+		var array1=[];
+		for (var i=0; i<binare.length;i++) {
+			array1.push(binare.charCodeAt(i));
+		}
+		return new Blob([new Uint8Array(array1)],{type:type});
+	}
+	
+	</script>
+</html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title>首页的首页</title>
+		<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css"/>
+		<link rel="stylesheet" type="text/css" href="css/main_main_left.css"/>
+		
+		<script src="funJs/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/bootstrap.min.js" type="text/javascript" charset="utf-8"></script>
+		
+		
+		<script type="text/javascript">
+			$(document).ready(function () {
+				$("#myCarousel").carousel('cycle');
+			 document.getElementsByTagName('body')[0].style.height = window.innerHeight+'px';  
+			})
+		</script>
+	</head>
+	<body>
+		<div class="col-lg-12 col-sm-12 col-md-12 col-xs-12">
+			<div class="row">
+				 <div id="myCarousel" class="carousel slide" data-interval="5000" data-pause = "hover">
+    <!-- 轮播（Carousel）指标 -->
+    <ol class="carousel-indicators">
+        <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
+        <li data-target="#myCarousel" data-slide-to="1"></li>
+        <li data-target="#myCarousel" data-slide-to="2"></li>
+        <li data-target="#myCarousel" data-slide-to="3"></li>
+        <li data-target="#myCarousel" data-slide-to="4"></li>
+    </ol>   
+    <!-- 轮播（Carousel）项目 -->
+    <div class="carousel-inner">
+        <div class="item active">
+           <a href="#" class="thumbnail"> <img src="img/1-130201105055.jpg" alt="First slide"></a>
+        </div>
+        <div class="item">
+            <a href="#" class="thumbnail"><img src="img/20120723200549_ZhRre.thumb.700_0.jpeg" alt="Second slide"></a>
+        </div>
+        <div class="item">
+            <a href="#" class="thumbnail"><img src="img/74C58PICgy4_1024.jpg" alt="Third slide"></a>
+        </div>
+         <div class="item">
+            <a href="#" class="thumbnail"><img src="img/img201008181910520.jpg" alt="Second slide"></a>
+        </div>
+         <div class="item">
+            <a href="#" class="thumbnail"><img src="img/zweihua11.jpg" alt="Second slide"></a>
+        </div>
+    </div>
+    <!-- 轮播（Carousel）导航 -->
+    <a class="carousel-control left" href="#myCarousel" id="carousel-control-left"
+        data-slide="prev">&lsaquo;
+    </a>
+    <a class="carousel-control right" href="#myCarousel" id="carousel-control-right"
+        data-slide="next">&rsaquo;
+    </a>
+</div>
+			</div>
+		</div>
+	</body>
+</html>

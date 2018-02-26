@@ -1,0 +1,50 @@
+@charset "utf-8";
+	body{
+		overflow: hidden;
+	}
+	#hot_right_tittle{
+		font-family: "微软雅黑";
+		font-size: 1.5em;
+	}
+	.container{
+		width: 100%;
+		
+	}
+	.col-lg-12{
+		padding: 0px;
+		padding-top: 0px;
+	}
+	#tittle{
+		padding-top: 20px;
+	}
+	#showHot{
+		padding-top: 50px;
+	}
+	tr{
+		font-family: "微软雅黑";
+		cursor: pointer;
+	}
+	td{
+		border-top: none !important;
+		border-bottom: 1px solid #ddd;
+	}
+	#myCarousel{
+		/*border: 1px solid black;*/
+		margin: 0px auto;
+		margin-top: 20px;
+	}
+	.thumbnail{
+		padding: 0;
+		border: 0;
+	}
+	#carousel-control-left{
+		width: 0;
+		top: 40%;
+		font-size: 5em;
+	}
+	#carousel-control-right{
+		width: 0;
+    	top: 40%;
+    	font-size: 5em;
+    	right: 3%;
+	}
