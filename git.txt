@@ -2,4 +2,4 @@ git is a version controller software
 git is a free software
 now add some words
 another words has added
-creating a new branch
+creating a new branch is quick & simple
