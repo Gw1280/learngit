@@ -1,0 +1,1740 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>操作热图</title>
+		<link rel="icon" type="text/css" href="img/logosmall.png"/>
+		<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css"/>
+		<link rel="stylesheet" type="text/css" href="css/bootstrap-slider.css"/>
+		<link rel="stylesheet" type="text/css" href="css/hot_detail.css"/>
+		
+		<script src="funJs/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/bootstrap.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/bootstrap-slider.js" type="text/javascript" charset="utf-8"></script>
+		<script src="funJs/Common.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/axjaxComm.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/jquery.cookie.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var p = '0000_5'; //全局储存选取的调色板,默认0000_5
+			var add;
+			var adds=new Array();
+			var addLEN=$.cookie('ID_len');
+			//当热图地址数组长度为零，即该次检查没有热图时，关闭页面
+			if (addLEN==0) {
+				alert('本次检查暂无热图!');
+				window.opener=null;
+				window.open('','_self');
+				window.close();
+			}
+			var TEMPS=new Array('default',1.6,3.2,6.4,12.8);
+			var NOW=1;		//保存当前热图序列，默认为1
+			var itemARRAY =new Array();	//图片数组
+			var cavHeight=0;
+			var cavWidth=0;
+			for (var i=0;i<addLEN;i++) {
+				var _a=$.cookie('detail_ID'+i);
+				adds.push(_a);
+			}
+			itemARRAY.length=adds.length;
+			//图片数组，数组长度为热图数量
+			function ITEM (ID,ADD,PEL,WIN,VAL,ARR,TOP,BOT) {
+				this.ID=ID;
+				this.ADD=ADD;	//热图地址
+				this.PEL=PEL;	//调色板，初始为默认值P，更改后保存新的调色板
+				this.WIN=WIN;	//温窗，初始值为默认值‘default’，更改后保存下拉框选项
+				this.VAL=VAL;	//滑动块的值，初始默认值为0，更改后保存新的
+				this.ARR=ARR;	//画板数组，保存标记的感兴趣区域数组（hua）
+				this.TOP=TOP;	//图片原始最高温
+				this.BOT=BOT;	//图片原始最低温
+			}
+			for (var i=0;i<adds.length;i++) {
+				itemARRAY[i]=new ITEM(i,adds[i],p,'default',0,null,0,0);
+			}
+			//为所有热图添加初始温度
+			function addTEMP () {
+				for (var i=0;i<itemARRAY.length;i++) {
+					aj1(itemARRAY[i].ADD);
+					$.cookie('iniWidth',TWidth);
+					$.cookie('iniHeight',THeight);
+					itemARRAY[i].TOP=GlobalMax;
+					itemARRAY[i].BOT=GlobalMin;
+				}
+			}
+			setTimeout('addTEMP()',1500);
+			$(document).ready(function() {
+				$('#ex4').slider({
+					reversed: true
+				});
+				var winW = $(window).width();
+				var winH = $(window).height();
+				var mainW = winW * 0.667 * 0.76;
+				$('#showMain,#showRange,#showScale,#showCol,#Main_CAV,#Col_CAV,#Sca_CAV,.slider.slider-vertical,#huaban,#hua_CAV')
+				.height(mainW * comRawHeight / comRawWidth);
+				$('#showMain,#Main_CAV,#hua_CAV,#huaban').width(mainW);
+				$('#xianshiwendu').height(winH * 0.55);
+				$('#Col_CAV').width($('#showCol').width());
+				$('#Sca_CAV').width($('#showScale').width() * 1.2)
+				var dangH = mainW * comRawHeight / comRawWidth + winH * 0.05;
+				document.getElementById("dangqian").style.marginTop = dangH + 'px';
+				document.getElementById("Sca_CAV").width = $('#showScale').width();
+				document.getElementById("Sca_CAV").height = $('#showScale').height();
+				var cav2 = document.getElementById("hua_CAV");
+				document.getElementById("hua_CAV").width = $('#huaban').width();
+				document.getElementById("hua_CAV").height = $('#huaban').height();
+				document.getElementById("Main_CAV").width=$('#Main_CAV').width();
+				document.getElementById("Main_CAV").height=$('#Main_CAV').height();
+				cavHeight=$("#Main_CAV").height();
+				cavWidth=$('#Main_CAV').width();
+				aj_REC($.cookie('HID'),$.cookie('PID'),$.cookie('checkID'));
+				addROI(itemARRAY,RECs);
+				showTOTAL(addLEN);
+				showNOW(NOW);
+				checkNO(NOW,addLEN);
+				insertPE();
+				add=itemARRAY[NOW-1].ADD;
+				p=itemARRAY[NOW-1].PEL;
+		//当温窗已经不是默认温窗时，画图参数有所改变
+		//刻度值改变时，同样画图参数有所改变
+			if (itemARRAY[NOW-1].WIN!='default') {
+				var s=itemARRAY[NOW-1].WIN;
+				s=Number(s);
+				clear_CAV('Main_CAV');
+				clear_CAV('Col_CAV');
+				clear_CAV('Sca_CAV');
+				var rangeval=$('#ex4').slider();
+				rangeval.slider('setValue',itemARRAY[NOW-1].VAL);
+				//从服务器获取图片温差的中间值，各加减温窗的一半即为新的最高温最低温
+			if (itemARRAY[NOW-1].VAL!=0) {
+				var middleval=((TnGlobalMax-TnGlobalMin)/2)+TnGlobalMin; 
+				var midSval=s/2;
+				GlobalMax=Number(middleval)+s/2;
+				GlobalMin=middleval-s/2;
+				maxTemp= GlobalMax+ parseInt(itemARRAY[NOW-1].VAL)/20;
+				minTemp= GlobalMin+ parseInt(itemARRAY[NOW-1].VAL)/20;
+				aj1(add);
+				aj2(p);
+				var rgbDATA=GetRender(TrawData,maxTemp,minTemp,TPalette);
+				draw16('Main_CAV',rgbDATA);
+				doCol(p);
+				drawScale('Sca_CAV',maxTemp,minTemp);
+			} else{
+				var middleval=((TnGlobalMax-TnGlobalMin)/2)+TnGlobalMin; 
+				var midSval=s/2;
+				GlobalMax=Number(middleval)+s/2;
+				GlobalMin=middleval-s/2;
+				maxTemp=GlobalMax;
+				minTemp=GlobalMin;
+				aj1(add);
+				aj2(p);
+				var rgbDATA=GetRender(TrawData,maxTemp,minTemp,TPalette);
+				draw16('Main_CAV',rgbDATA);
+				doCol(p);
+				drawScale('Sca_CAV',maxTemp,minTemp);
+			}
+		} else{
+			var rangeval=$('#ex4').slider();
+			rangeval.slider('setValue',itemARRAY[NOW-1].VAL);
+			if (itemARRAY[NOW-1].VAL!=0) {
+				maxTemp= GlobalMax+ parseInt(itemARRAY[NOW-1].VAL)/20;
+				minTemp= GlobalMin+ parseInt(itemARRAY[NOW-1].VAL)/20;
+				aj1(add);
+				aj2(p);
+				var rgbDATA=GetRender(TrawData,maxTemp,minTemp,TPalette);
+				draw16('Main_CAV',rgbDATA);
+				doCol(p);
+				drawScale('Sca_CAV',maxTemp,minTemp);
+			} else{
+				doShow(add,p,'Main_CAV');
+				doCol(p);
+				doSca(add);
+			}
+		}
+			//如果已有感兴趣区域，则添加到hua中并绘制
+			if (itemARRAY[NOW-1].ARR) {
+				hua=itemARRAY[NOW-1].ARR;
+				reHua();
+				showWens();
+			}
+		//点击切换到上一张图
+		$('#prev').on('click',function () {
+			NOW=NOW-1;
+			if (NOW==0) {
+				return false;
+			}
+			showTOTAL(addLEN);
+			showNOW(NOW);
+			checkNO(NOW,addLEN);
+			var sa=$('#selectwindow option:selected').text();
+			itemARRAY[NOW].PEL=p;			/*重新保存当前热图信息到数组:调色板，温窗，刻度值,画图数组*/
+			itemARRAY[NOW].WIN=sa;
+			var rangeval=$('#ex4').slider();
+			itemARRAY[NOW].VAL=rangeval.slider('getValue');
+			itemARRAY[NOW].ARR=new Array();
+			if (hua) {
+				for (var i=0;i<hua.length;i++) {
+					itemARRAY[NOW].ARR.push(hua[i]);
+				}														
+			}
+		clear_CAV('Main_CAV');					//清除掉上一张的作图痕迹
+		clear_CAV('Col_CAV');
+		clear_CAV('Sca_CAV');
+		clear_CAV('hua_CAV');
+		hua.splice(0,hua.length);		
+		$('.quyu').remove();
+		add=itemARRAY[NOW-1].ADD;
+		p=itemARRAY[NOW-1].PEL;
+		//设置调色板下拉框的选中
+		for (var i=0;i<pls.length;i++) {
+			if (pls[i]==p) {
+				$('#selectPelete').val(p);
+			}
+		}		
+		//设置温窗下拉框的选中
+		for (var i=0;i<TEMPS.length;i++) {
+			if (itemARRAY[NOW-1].WIN==TEMPS[i]) {
+				$('#selectwindow').val(TEMPS[i]);
+			}
+		}
+		//当温窗已经不是默认温窗时，画图参数有所改变
+		if (itemARRAY[NOW-1].WIN!='default') {
+			var s=itemARRAY[NOW-1].WIN;
+			s=Number(s);
+			clear_CAV('Main_CAV');
+			clear_CAV('Col_CAV');
+			clear_CAV('Sca_CAV');
+			var rangeval=$('#ex4').slider();
+			rangeval.slider('setValue',itemARRAY[NOW-1].VAL);
+			//从服务器获取图片温差的中间值，各加减温窗的一半即为新的最高温最低温
+			if (itemARRAY[NOW-1].VAL!=0) {
+				var middleval=((TnGlobalMax-TnGlobalMin)/2)+TnGlobalMin; 
+				var midSval=s/2;
+				GlobalMax=Number(middleval)+Number(s/2);
+				GlobalMin=middleval-s/2;
+				maxTemp=GlobalMax+ parseInt(itemARRAY[NOW-1].VAL)/20;
+				minTemp=GlobalMin+ parseInt(itemARRAY[NOW-1].VAL)/20;
+				aj1(add);
+				aj2(p);
+				var rgbDATA=GetRender(TrawData,maxTemp,minTemp,TPalette);
+				draw16('Main_CAV',rgbDATA);
+				doCol(p);
+				drawScale('Sca_CAV',maxTemp,minTemp);
+			}else{
+				var middleval=((TnGlobalMax-TnGlobalMin)/2)+TnGlobalMin; 
+				var midSval=s/2;
+				GlobalMax=Number(middleval)+Number(s/2);
+				GlobalMin=middleval-s/2;
+				maxTemp=GlobalMax;
+				minTemp=GlobalMin;
+				aj1(add);
+				aj2(p);
+				var rgbDATA=GetRender(TrawData,maxTemp,minTemp,TPalette);
+				draw16('Main_CAV',rgbDATA);
+				doCol(p);
+				drawScale('Sca_CAV',maxTemp,minTemp);
+			}
+		} else{	
+				var rangeval=$('#ex4').slider();
+				rangeval.slider('setValue',itemARRAY[NOW-1].VAL);
+			if (itemARRAY[NOW-1].VAL!=0) {
+				maxTemp= GlobalMax+ parseInt(itemARRAY[NOW-1].VAL)/20;
+				minTemp= GlobalMin+ parseInt(itemARRAY[NOW-1].VAL)/20;
+				aj1(add);
+				aj2(p);
+				var rgbDATA=GetRender(TrawData,maxTemp,minTemp,TPalette);
+				draw16('Main_CAV',rgbDATA);
+				doCol(p);
+				drawScale('Sca_CAV',maxTemp,minTemp);
+			}else{
+				doShow(add,p,'Main_CAV');
+				doCol(p);
+				doSca(add);
+			}
+		}
+		if (itemARRAY[NOW-1].ARR) {								//绘制感兴趣区域
+			for (var i=0;i<itemARRAY[NOW-1].ARR.length;i++) {
+				hua.push(itemARRAY[NOW-1].ARR[i]);
+			}
+		}
+		reHua();
+		showWens();
+		
+	});
+	$('#next').on('click',function () {
+		NOW=NOW+1;
+		showTOTAL(addLEN);
+		showNOW(NOW);
+		checkNO(NOW,addLEN);
+		var sa=$('#selectwindow option:selected').text();
+		itemARRAY[NOW-2].PEL=p;			/*重新保存当前热图信息到数组:调色板，温窗，刻度值,画图数组*/
+		itemARRAY[NOW-2].WIN=sa;
+		var rangeval=$('#ex4').slider();
+		itemARRAY[NOW-2].VAL=rangeval.slider('getValue');
+		itemARRAY[NOW-2].ARR=new Array();
+		for (var i=0;i<hua.length;i++) {
+			itemARRAY[NOW-2].ARR.push(hua[i]);
+		}
+		clear_CAV('Main_CAV');
+		clear_CAV('Col_CAV');
+		clear_CAV('Sca_CAV');
+		clear_CAV('hua_CAV');
+		hua.splice(0,hua.length);		//清除掉上一张图的走图痕迹以及最大最小温度值	
+		$('.quyu').remove();
+		add=itemARRAY[NOW-1].ADD;
+		p=itemARRAY[NOW-1].PEL;
+		for (var i=0;i<pls.length;i++) {						//设置调色板下拉框的选中
+			if (pls[i]==p) {
+				$('#selectPelete').val(p);
+			}
+		}
+		for (var i=0;i<TEMPS.length;i++) {
+			if (itemARRAY[NOW-1].WIN==TEMPS[i]) {
+				$('#selectwindow').val(TEMPS[i]);
+			}
+		}
+		//当温窗已经不是默认温窗时，画图参数有所改变
+		if (itemARRAY[NOW-1].WIN!='default') {
+			var s=itemARRAY[NOW-1].WIN;
+			s=Number(s);
+			clear_CAV('Main_CAV');
+			clear_CAV('Col_CAV');
+			clear_CAV('Sca_CAV');
+			var rangeval=$('#ex4').slider();
+			rangeval.slider('setValue',itemARRAY[NOW-1].VAL);
+			//从服务器获取图片温差的中间值，各加减温窗的一半即为新的最高温最低温
+			if (itemARRAY[NOW-1].VAL!=0) {
+				var middleval=((TnGlobalMax-TnGlobalMin)/2)+TnGlobalMin; 
+				var midSval=s/2;
+				GlobalMax=Number(middleval)+Number(s/2);
+				GlobalMin=middleval-s/2;
+				maxTemp=GlobalMax+ parseInt(itemARRAY[NOW-1].VAL)/20;
+				minTemp=GlobalMin+ parseInt(itemARRAY[NOW-1].VAL)/20;
+				aj1(add);
+				aj2(p);
+				var rgbDATA=GetRender(TrawData,maxTemp,minTemp,TPalette);
+				draw16('Main_CAV',rgbDATA);
+				doCol(p);
+				drawScale('Sca_CAV',maxTemp,minTemp);
+			}else{
+				var middleval=((TnGlobalMax-TnGlobalMin)/2)+TnGlobalMin; 
+				var midSval=s/2;
+				GlobalMax=Number(middleval)+Number(s/2);
+				GlobalMin=middleval-s/2;
+				maxTemp=GlobalMax;
+				minTemp=GlobalMin;
+				aj1(add);
+				aj2(p);
+				var rgbDATA=GetRender(TrawData,maxTemp,minTemp,TPalette);
+				draw16('Main_CAV',rgbDATA);
+				doCol(p);
+				drawScale('Sca_CAV',maxTemp,minTemp);
+			}
+		} else{
+			if (itemARRAY[NOW-1].VAL!=0) {
+				var rangeval=$('#ex4').slider();
+				rangeval.slider('setValue',itemARRAY[NOW-1].VAL);
+				maxTemp= GlobalMax+ parseInt(itemARRAY[NOW-1].VAL)/20;
+				minTemp= GlobalMin+ parseInt(itemARRAY[NOW-1].VAL)/20;
+				aj1(add);
+				aj2(p);
+				var rgbDATA=GetRender(TrawData,maxTemp,minTemp,TPalette);
+				draw16('Main_CAV',rgbDATA);
+				doCol(p);
+				drawScale('Sca_CAV',maxTemp,minTemp);
+			}else{
+				doShow(add,p,'Main_CAV');
+				doCol(p);
+				doSca(add);
+				var rangeval=$('#ex4').slider();
+				rangeval.slider('setValue',itemARRAY[NOW-1].VAL);
+			}
+		}
+		if (itemARRAY[NOW-1].ARR) {								//绘制感兴趣区域
+			for (var i=0;i<itemARRAY[NOW-1].ARR.length;i++) {
+				hua.push(itemARRAY[NOW-1].ARR[i]);
+			}
+		}
+		reHua();
+		showWens();
+	});
+	//添加成功提示,同时保存需要传往热图页面的图像数组的下标
+	var inDEXS=new Array(); //用来保存图像数组下标
+	$('#addReport').on('click',function() {
+		//添加条件，最大只能放置9张热图
+		if(imgs.length>8){
+			alert('最多只能放置9张热图');
+		}else{			
+			saveIMG();
+			savePELET();
+			saveTEMP();
+			$('.edis').remove();
+			savetoED(imgs);
+			getFuture(imgs);
+			showPage(nowPAGE,futPage);
+			inDEXS.push(NOW-1);				//将数组下标保存起来，并将其代表的热图对象传到下个页面
+			$('#NO_I').html(imgs.length);
+			$('#suc_Info').fadeIn(300).delay(500).fadeOut(300);
+		}
+	});
+	$('#resetALL').on('click',function() {
+		imgs.splice(0,imgs.length);
+		imgps.splice(0,imgps.length);
+		imgts.splice(0,imgts.length);
+		inDEXS.splice(0,inDEXS.length);
+		$('.edis').remove();
+		getFuture(imgs);
+		nowPAGE=1
+		showPage(nowPAGE,futPage);
+	});
+	//将选中图片的数组提交到localstroage，从而方便撰写报告页面调用,同时传入数组长度,此按钮同时要添加一个保存当前热图信息的功能
+	$('#toReport').on('click',function () {
+		var sa=$('#selectwindow option:selected').text();
+		itemARRAY[NOW-1].PEL=p;			/*重新保存当前热图信息到数组:调色板，温窗，刻度值,画图数组*/
+		itemARRAY[NOW-1].WIN=sa;
+		var rangeval=$('#ex4').slider();
+		itemARRAY[NOW-1].VAL=rangeval.slider('getValue');
+		itemARRAY[NOW-1].ARR=hua;
+		var loc=window.localStorage;
+		loc.clear();		//清除之前可能存在的localstorage
+		$.cookie('imgLEN',imgs.length);
+		loc.setItem('inDEX',inDEXS);
+		for (var i=0;i<imgs.length;i++) {
+			loc.setItem('imgms'+i,imgs[i].src);
+			loc.setItem('imgps'+i,imgps[i].src);
+			loc.setItem('imgts'+i,imgts[i].src);
+		}
+		for (var l=0;l<itemARRAY.length;l++) {
+			var str='';
+			str+=itemARRAY[l].ID+'*';
+			str+=itemARRAY[l].ADD+'*';
+			str+=itemARRAY[l].PEL+'*';
+			str+=itemARRAY[l].WIN+'*';
+			str+=itemARRAY[l].VAL+'*';
+			if (itemARRAY[l].ARR) {
+				for (var k=0;k<itemARRAY[l].ARR.length;k++) {
+					str+='['+itemARRAY[l].ARR[k].shape+'-';
+					str+='('+itemARRAY[l].ARR[k].con+')';
+					str+=']';
+				}
+			}
+			
+			str+='*'+itemARRAY[l].TOP+'*'+itemARRAY[l].BOT;
+			loc.setItem('ite'+l,str);
+//			loc.clear();
+		}
+		window.open('editREP.html')
+	});
+	//删除选中的图片,并重新画图
+	$('#resetSOME').on('click',function () {
+		var _items=$('#edLIST li');
+		var _x=new Array();		//保存待删除的数组下标，然后统一删除
+		for (var i=0;i<_items.length;i++) {
+			var _a=_items[i].children[0];
+			var _b=_a.className.split(' ');
+			for (var j=0;j<_b.length;j++) {
+				if (_b[j]=='checked') {
+					_x.push(i);
+				}
+			}
+		}
+		for (var l=0;l<_x.length;l++) {
+			_items[_x[l]].children[0].remove();
+			imgs.splice(_x[l],1);//清除掉保存在数组中的这个图片，并重画
+			imgps.splice(_x[l],1);
+			imgts.splice(_x[l],1);
+			inDEXS.splice(_x[l],1);
+		}
+		$('.edis').remove();
+		savetoED(imgs);
+		getFuture(imgs);
+		nowPAGE=1
+		showPage(nowPAGE,futPage);
+	});
+	//选中热图每页显示三个，设置按钮翻页
+	$('#triangle_up').on('click',function () {
+		var _now=nowPAGE-1;
+		if (_now<0||_now==0) {
+			showPage(nowPAGE,futPage);      //保险
+		} else{
+			$('.edis').remove();
+			var staIndex=(_now-1)*3+1;
+			$('#edLIST')[0].start=staIndex;
+			for (var i=staIndex-1;i<staIndex+2;i++) {
+				var str='';
+				str+='<li class="edis">';
+				str+='<img id="imgs'+i+'" class="edITEM" src="'+imgs[i].src+'" onclick="letCheck('+i+')"/>'
+				str+='</li>';
+				$('#edLIST').append(str);
+			}
+			nowPAGE=nowPAGE-1;
+			showPage(nowPAGE,futPage);
+		}
+	});
+	$('#triangle_down').on('click',function () {
+		var _now=nowPAGE+1;
+		if(_now>4||_now==4){
+			showPage(nowPAGE,futPage);      //保险
+		}else{
+			$('.edis').remove();
+			var staIndex=(_now-1)*3+1;
+			$('#edLIST')[0].start=staIndex;
+			var _max=Math.min(imgs.length,staIndex+2)
+			for (var i=staIndex-1;i<_max;i++) {
+				var str='';
+				str+='<li class="edis">';
+				str+='<img id="imgs'+i+'" class="edITEM" src="'+imgs[i].src+'" onclick="letCheck('+i+')"/>'
+				str+='</li>';
+				$('#edLIST').append(str);
+			}
+			nowPAGE=nowPAGE+1;
+			showPage(nowPAGE,futPage);
+		}
+	});
+});
+	//确定选中对象有几页,a为选中的对象数组
+	var futPage=1		//保存总共页数
+	function getFuture (a) {
+		var _a=a.length;
+		if (_a<4) {
+			futPage=1;
+		}else if(_a<7){
+			futPage=2;
+		}else if(_a<10){
+			futPage=3;
+		}
+	}
+	//为按钮添加和删除disabled类，a为按钮id名
+	var nowPAGE=1;		//保存当前页数
+	function addDIS (a) {
+			$('#'+a).attr('disabled','disabled');
+	}
+	function delDIS (a) {
+			$('#'+a).removeAttr('disabled');
+	}
+	//显示page,a为当前页数，b为总页数
+	function showPage (a,b) {
+		$('#now').html(a);
+		$('#future').html(b);
+		if(a==1){
+			addDIS('triangle_up');
+		}else if(a>1){
+			delDIS('triangle_up');
+		};
+		if(b==1||b==a){
+			addDIS('triangle_down');
+		}else if (b>a) {
+			delDIS('triangle_down');
+		}
+	}
+	//根据点击的不同选择不同的地址进行ajax请求,需要参数：a为地址，b为下拉框获取的调色板，c为要写到的地方的ID
+	var ajMaxTemp;
+	var ajMinTemp;		//全局保存TnGlobalMax和TnGlobalMin，以避免在画刻度尺时再次调用aj1
+	var aj2Palete;		//全局保存调色板，避免再画刻度板时再次调用aj2
+function get_final(a, b, c) {
+	aj1(a);
+	aj2(b);
+	aj2Palete=TPalette;
+	ajMaxTemp=TnGlobalMax;
+	ajMinTemp=TnGlobalMin;
+	var rgbDATA = GetRender(TrawData, TnGlobalMax, TnGlobalMin, TPalette);
+	draw16(c, rgbDATA);
+}
+//获取选中的下拉框
+function get_selected() {
+	var s = $('#selectPelete option:selected').text();
+	p = s;
+}
+function doShow(a,b,c) {
+	get_final(a, b, c);
+}
+//根据选中的调色板选择调色板,参数a为调色板信息
+function doCol(a) {
+	drawPalette('Col_CAV', aj2Palete, 1, 256);
+}
+//根据图片的最高温最低温显示刻度值,需要参数，a为图片地址
+function doSca(a) {
+	drawScale('Sca_CAV', ajMaxTemp, ajMinTemp);
+}
+//点击后改变p的值，并根据改变的P重新获取图片和调色板以及刻度尺
+function show_change() {
+	var rangeval=$('#ex4').slider();
+	rangeval.slider('setValue',0);
+	get_selected();
+	clear_CAV('Main_CAV');
+	clear_CAV('Col_CAV');
+	clear_CAV('Sca_CAV');
+	doShow(add,p,'Main_CAV');
+	doCol(p);
+	doSca(add);
+}
+//应在改变之前，先删除原canvas的内容,参数a为需要清除的canvas的id
+function clear_CAV(a) {
+	var c = document.getElementById(a);
+	var cxt = c.getContext('2d');
+	cxt.clearRect(0, 0, $('#' + a).width(), $('#' + a).height());
+}
+//填充下拉框
+function insertPE() {
+	aj3();
+	var str = ''
+	for(var i = 0; i < pls.length; i++) {
+		str += '<option>' + pls[i] + '</option>';
+	}
+	$('#selectPelete').prepend(str);
+}
+//显示总热图数量,a为通过cookie接到的数量
+function showTOTAL (a) {
+	var _s=a;
+	document.getElementById("zonggong").innerText=_s;
+}
+//显示当前热图序列,a为当前热图序列
+function showNOW (a) {
+	var _s=a;
+	document.getElementById("xianzai").innerText=_s;
+}
+//上一张下一张相关功能
+//检测当前是第几张图片，第一张图片时不能点上一页按钮，最后一张图片时不能点下一页按钮,参数a为当前张数，参数b为总张数
+function checkNO (a,b) {
+	$('#prev').removeAttr('disabled');
+	$('#next').removeAttr('disabled');
+	if (a==1) {
+		$('#prev').attr('disabled','disabled');
+	};
+	if(a==b){
+		$('#next').attr('disabled','disabled');
+	}
+}
+//将热图canvas和画板canvas合二为一保存为图像
+var imgs=new Array();		//保存上传到报告的img数组
+function saveIMG () {
+	var cav2=document.getElementById("Main_CAV");
+	var img=new Image();
+	img.src=cav2.toDataURL('image/png');
+	imgs.push(img);
+}
+//保存当前调色板
+var imgps=new Array(); 		//保存传到报告的调色板数组
+function savePELET () {
+	var cav=document.getElementById("Col_CAV");
+	var ctx=cav.getContext('2d');
+	var cavData=ctx.getImageData(0,0,cav.width,cav.height);
+	var cav3=document.createElement("canvas");
+	cav3.width=cav.width;
+	cav3.height=cav.height;
+	var cxt3=cav3.getContext('2d');
+	cxt3.drawImage(cav,0,0,cav3.width,cav3.height,0,0,cav3.width,cav3.height);
+	var img=new Image();
+	img.src=cav3.toDataURL('image/png');
+	imgps.push(img);
+}
+//保存当前刻度尺
+var imgts=new Array();		//保存传到报告的刻度尺数组
+function saveTEMP () {
+	var cav=document.getElementById("Sca_CAV");
+	var ctx=cav.getContext('2d');
+	var cavData=ctx.getImageData(0,0,cav.width,cav.height);
+	var cav3=document.createElement("canvas");
+	cav3.width=cav.width;
+	cav3.height=cav.height;
+	var cxt3=cav3.getContext('2d');
+	cxt3.drawImage(cav,0,0,cav3.width,cav3.height,0,0,cav3.width,cav3.height);
+	var img=new Image();
+	img.src=cav3.toDataURL('image/png');
+	imgts.push(img);
+}
+//将图片放到侧面的购物篮中,a为img数组,该功能应放置到打开弹出层的地方实现，
+function savetoED (a) {
+	for (var i=0;i<a.length;i++) {
+		var str='';
+			str+='<li class="edis">';
+			str+='<img id="imgs'+i+'" class="edITEM" src="'+a[i].src+'" onclick="letCheck('+i+')"/>'
+			str+='</li>';
+	$('#edLIST').append(str);
+	}
+}
+//为选中图片添加选中效果
+	function letCheck (a) {
+		var _s=$('#imgs'+a)[0].className.split(' ');
+			for (var i=0;i<_s.length;i++) {
+				if (_s[i]=='checked') {
+					$('#imgs'+a).removeClass('checked');
+				} else{
+					$('#imgs'+a).addClass('checked');
+				}
+			};
+	}
+//为热图数组添加roi（如果有）的实现,a为热图数组，b为记录数组
+	function addROI (a,b) {
+		var	cavRateX=cavWidth/iniWidth;
+		var cavRateY=cavHeight/iniHeight;
+		//console.log(cavHeight+'.....'+iniHeight);
+		for (var i=0;i<a.length;i++) {
+			var s=a[i].ADD.split('/');
+			var s1=s[s.length-1];
+			var s2=s1.substring(0,s1.length-4);
+			for (var l=0;l<b.length;l++) {
+				var p=b[l].Name;
+				if (s2==p) {
+					a[i].VAL=b[l].percen;
+					a[i].TOP=b[l].CurMax;
+					a[i].BOT=b[l].CurMin;
+					a[i].WIN=b[l].Width;
+					a[i].PEL=b[l].palette;
+					a[i].ARR=new Array();
+					if (b[l].Rios) {
+						for (var k=0;k<b[l].Rios.length;k++) {
+							if (b[l].Rios[k]) {
+								var d=b[l].Rios[k].ID;
+								var e=b[l].Rios[k].type;
+								var e1;
+								var h='';
+								if (e=='rect') {
+									e1=1;
+									var f=b[l].Rios[k].cons[0];
+										f=f.substring(1,f.length-1);
+									var	f1=f.split(',');
+									var	f1x=Number(f1[0])*cavRateX;
+									var	f1y=Number(f1[1])*cavRateY;
+									var g=b[l].Rios[k].cons[2];
+										g=g.substring(1,g.length-1);
+									var	g1=g.split(',');
+									var	g1x=Number(g1[0])*cavRateX;
+									var	g1y=Number(g1[1])*cavRateY;
+										h=f1x+','+f1y+','+g1x+','+g1y;
+								}else if(e=='circle'){
+									e1=2;
+									var f=b[l].Rios[k].cons[0];
+										f=f.substring(1,f.length-1);
+									var	f1=f.split(',');
+									var	f1x=Number(f1[0]);
+									var	f1y=Number(f1[1]);
+									var g=b[l].Rios[k].cons[2];
+										g=g.substring(1,g.length-1);
+									var g1=g.split(',');
+									var g1x=Number(g1[0]);
+									var g1y=Number(g1[1]);
+									var wi=(g1x-f1x)/2;
+									var he=(g1y-f1y)/2;
+									h=(f1x-wi)*cavRateX+','+(f1y-he)*cavRateY+','+f1x*cavRateX+','+f1y*cavRateY;
+								}else if(e=='point'){
+									e1=3
+									var f=b[l].Rios[k].cons[0];
+										f=f.substring(1,f.length-1);
+									var	f1=f.split(',');
+									var	f1x=Number(f1[0])*cavRateX;
+									var	f1y=Number(f1[1])*cavRateY;
+										h=f1x+','+f1y;
+								}else{
+									e1=4
+									var f=b[l].Rios[k].cons[0];
+										f=f.substring(1,f.length-1);
+									var	f1=f.split(',');
+									var	f1x=Number(f1[0])*cavRateX;
+									var	f1y=Number(f1[1])*cavRateY;
+									var g=b[l].Rios[k].cons[1];
+										g=g.substring(1,g.length-1);
+									var	g1=g.split(',');
+									var	g1x=Number(g1[0])*cavRateX;
+									var	g1y=Number(g1[1])*cavRateY;
+										h=f1x+','+f1y+','+g1x+','+g1y;
+								}
+							var wa=new duixiang(d,e1,h,false);
+							a[i].ARR.push(wa);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+//获取这次检查的检查记录并转化成需要的值,a为该次检查ID
+	var RECs=new Array();		//记录图片检查信息的数组，单位为每张热图
+	var iniWidth=0;
+	var iniHeight=0;
+	function aj_REC (a,b,c) {
+		$.ajax({
+			url:'http://'+comServerIP+'/Web/RoiFileInfo/'+a+'/'+b+'/'+c,
+			headers:{"Authorization":$.cookie('Authorization2')},
+			type:'get',
+			cache:false,
+			async:false,
+			success:function (data) {
+				var fstr=data.substr(0,1);
+				if (fstr=='打') {		
+					return false;		//'打开文件错误'，则代表没有文件，直接返回
+				}
+				iniHeight=Number($(data).find('images')[0].attributes.height.value);
+				iniWidth=Number($(data).find('images')[0].attributes.width.value);
+				for (var i=0;;i++) {
+					if ($(data).find('image'+i)[0]) {
+						var s=$(data).find('image'+i)[0].attributes.imagename.value;
+						var NAME=s.substring(0,s.length);
+						var curmin=$(data).find('image'+i).children('status')[0].attributes.CurMin.value;
+						var curmax=$(data).find('image'+i).children('status')[0].attributes.CurMax.value;
+						var width=$(data).find('image'+i).children('status')[0].attributes.Width.value;
+						if (width=='初始温宽') {
+							width='default';
+						} else{
+							width=Number(width);
+						}
+						var perc=$(data).find('image'+i).children('status')[0].attributes.Percentage.value;
+						var pal=$(data).find('image'+i).children('status')[0].attributes.PaletteName.value;
+						var RIOS=new Array();
+						for (var l=0;;l++) {
+							if ($(data).find('image'+i).children('rois').children('roi'+l)[0]) {
+								var id=l;
+								var CONS=new Array();
+								var Type=$(data).find('image'+i).children('rois').children('roi'+l)[0].attributes.type.value;
+								for (var k=0;;k++) {
+									if ($(data).find('image'+i).children('rois').children('roi'+l).children('pt')[k]) {
+										var x=$(data).find('image'+i).children('rois').children('roi'+l).children('pt')[k].attributes.x.value;
+										var y=$(data).find('image'+i).children('rois').children('roi'+l).children('pt')[k].attributes.y.value;
+										var CON='('+x+','+y+')';
+										CONS.push(CON);
+									} else{
+										break;
+									}
+								}
+								var rio=new RIO(id,Type,CONS);
+								RIOS.push(rio);
+							} else{
+								break;
+							}
+						}
+						var rec=new REC(NAME,curmin,curmax,width,perc,pal,RIOS);
+						RECs.push(rec);
+					} else{
+						break;
+					}
+				}
+			},
+			error: function(XMLHttpRequest, textStatus, errorThrown) {
+				alert(XMLHttpRequest.status);
+				alert(XMLHttpRequest.readyState);
+				alert(textStatus);
+			}
+		})
+	}
+//检查记录对象，每个对象对应一张热图，通过图片名——热图地址的最后位置进行匹配
+	function REC (Name,CurMin,CurMax,Width,percen,palette,Rios) {
+		this.Name=Name;
+		this.CurMin=CurMin;
+		this.CurMax=CurMax;
+		this.Width=Width;
+		this.percen=percen;
+		this.palette=palette;
+		this.Rios=Rios;
+	}
+//保存RIO对象
+	function RIO (ID,type,cons) {
+		this.ID=ID;
+		this.type=type;
+		this.cons=cons;
+	}
+</script>
+		<style type="text/css">
+			.bar{
+		width:25px;
+		height:105px;
+		position:absolute;
+		right:-45px;
+		top:85%;
+		background:url(img/mini_bg.png) no-repeat;
+		display:block;
+		}
+		</style>
+	</head>
+	<body >
+		<div class="container" style="width: 100%;">
+			<div class="row">
+				<div class="col-lg-2 col-md-2 col-sm-2 col-xs-2" id='line1'>
+					<div id="showOptions" class="panel panel-info">
+						<div class="panel-heading">
+						<p id='lable_Pelete' class="info">当前调色板:</p>							
+						</div>
+						<div class="panel-body">
+						<select class="form-control" id='selectPelete' onchange="show_change()">
+						</select>							
+						</div>
+					</div>
+					<div id='showOptions2' class="panel panel-info">
+						<div id='leble_Cdiffer' class="panel-heading">
+						<p id='lable_Pelete' class="info">当前温窗:</p>							
+						</div>
+						<div class="panel-body">
+						<select class="form-control" id='selectwindow' onchange="change_show()">
+							<option>default</option>
+							<option>1.6</option>
+							<option>3.2</option>
+							<option>6.4</option>
+							<option>12.8</option>
+						</select>							
+						</div>
+					</div>
+					<div id="showOptions3" class="panel panel-info">
+						<div class="panel-heading">
+							<p id="draw">绘图</p>
+						</div>
+						<div class="panel-info panel-body">
+							<table class="table text-center" id="huitu">
+								<tbody>
+									<tr>
+										<td>
+											<input type="radio" name="o" value="3" /><span style="margin-left: 20px;">在图中标记各点</span>
+										</td>
+									</tr>
+									<tr>
+										<td>
+											<input type="radio" name="o" value="4" /><span style="margin-left: 20px;">在图中标记直线</span>
+										</td>
+									</tr>
+									<tr>
+										<td>
+											<input type="radio" name="o" value="2" /><span style="margin-left: 20px;">在图中标记圆形</span>
+										</td>
+									</tr>
+									<tr>
+										<td>
+											<input type="radio" name="o" value="1" /><span style="margin-left: 20px;">在图中标记矩形</span>
+										</td>
+									</tr>
+									<tr>
+										<td>
+											<input type="radio" name="o" value="5" checked="checked"/><span style="margin-left: 20px;">不使用绘图功能</span>
+										</td>
+									</tr>
+									<tr>
+										<td>
+											<button type="button" class="btn btn-info" style="width: 100%;" id="clear_hua">清除所有标记</button>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+					
+					<div class="main">
+						<div class="main2" style="">
+							<button type="button" class="btn-link bar"></button>
+							<div class="text-center" id="top">
+								<button type="button" class="btn btn-info" id="triangle_up" style="width: 100%;">上一页</button>								
+							</div>
+							<ol id='edLIST'>
+							</ol>
+							<div class="text-center" id="down">
+								<p	style="font-size: 20px; color: #8fb8cf;"><span id="now"></span>/<span id="future"></span></p>
+								<button type="button" class="btn btn-info" id="triangle_down" style="width: 100%;">下一页</button>
+							</div>
+							<div class="text-center" id="edBOTOM">
+								<button class="btn btn-info" id='resetALL'>取消全部</button>
+								<button class="btn btn-info" id='resetSOME'>取消所选</button>
+							</div>
+						</div>
+					</div>
+				</div>
+					<div id="suc_Info" style="background-color: gray;background: rgba(0,0,0,0.2);position: absolute;display: none;">
+						<p style="font-family: '微软雅黑';color: #d3d3d3;font-size: 1.8rem;text-align: center;line-height: 2;">第&nbsp;<span id="NO_I"></span>&nbsp;张热图</p>
+						<p id="suc_Tips" style="font-family: '微软雅黑';color: #d3d3d3;">添加成功</p>
+					</div>
+				<div class="col-lg-8 col-md-8 col-sm-8" id="line2">
+					<div class="col-lg-5 col-md-5 col-sm-5 text-center" id="shangzuo">
+						<div id="kongzhi">
+							<button id="prev" type="button" class="btn btn-info" style="float: left;">上一张</button>
+							<p id='weizhi' style="float: left;"><span id='xianzai'>1</span>/<span id="zonggong"></span></p>
+							<button id="next" type="button"	class="btn btn-info">下一张</button>
+						</div>
+					</div>
+					<div class="col-lg-5 col-md-5 col-sm-5 text-center" id="shangyou" style="height: 34px;">
+						<button id="shangchuan" class="btn btn-info" type="button">保存到本地</button>
+					</div>
+					<div id="showMain">
+						<canvas id="Main_CAV" width="" height="" style=""></canvas>
+					</div>
+					<div id="showCol">
+						<canvas id='Col_CAV' style=""></canvas>
+					</div>
+					<div id="showScale">
+						<canvas id='Sca_CAV' style=""></canvas>
+					</div>
+					<div id="showRange">
+						<input type="text" name="" id="ex4" data-slider-min = "-100" data-slider-max='100' data-slider-step='1' data-slider-value='0'data-slider-orientation="vertical" onchange="showValue(this.value)" style=""/>
+					</div>
+					<div id="huaban" style="z-index: 500;cursor: default;">
+						<canvas id='hua_CAV' style=""></canvas>
+					</div>
+					<div class="xianshi" id="shixian" style="position: absolute; width: 10%;display: none;">
+						<p id='xianshi' style="font-family: '微软雅黑';font-size: 1.2rem;color: black;background-color: white;width: 50%;"></p>
+					</div>
+					<div class="col-lg-5 col-md-5 col-sm-5 text-center" id="addFUN">
+						<button id="addReport" class="btn btn-info" type="button">添加至报告</button>
+					</div>
+					<div class="col-lg-5 col-md-5 col-sm-5 text-center" id="editFUN">
+						<button id="toReport" class="btn btn-info" type="button">撰写报告</button>
+					</div>
+					<div class="dangqian" style="position: absolute;" id="dangqian">	
+					</div>
+				</div>
+				<div class="col-lg-2 col-md-2 col-sm-2" id="line3">
+					<div class="showWendu">
+						<div class="panel panel-info text-center">
+							<div class="panel-heading">
+								<p id='showtemp'>当前温度</p>
+							</div>
+							<div class="panel-body" id="xianshiwendu">
+								<table class="table text-center table-hover table-bordered" id='wendu'>
+								<tr class="">
+									<td class="info">ID</td>
+									<td class="info">MAX</td>
+									<td class="info">MIN</td>
+									<td class="info">AVG</td>
+								</tr>
+								</table>
+							</div>
+						</div>
+						<div class="panel panel-info">
+							<div class="panel-body" id="dangqianBODY">
+								<input type="checkbox" id='chck'/>显示鼠标位置温度<br />
+								<input type="checkbox" id="chck2"/>最高温<br />
+								<input type="checkbox" id="chck3"/>最低温<br />
+							</div>
+						</div>
+					</div>	
+				</div>
+			</div>
+		</div>
+	</body>
+	<script type="text/javascript">var marLeft;
+		var marTop,x,y,xx,yy;
+		var isdrag = false;
+		var isclick = false;
+		var hua = new Array(); //保存画的对象数组
+		//保存被选中的对象
+		var xuanzhong,huasha; 
+		var chckes = false; //保存是否显示鼠标当前温度
+		var quyuTemp = false; //保存是否显示区域温度
+		marLeft = $('#Main_CAV').offset().left - $('#shangzuo').width() - 30;
+		marTop = $('#Main_CAV').offset().top;
+		var rowT = $(document).height() * 0.015;
+		var sbH = $('#shangzuo').height();
+		document.getElementById("huaban").style.marginTop = (sbH + rowT + 3) + 'px';
+		$('#clear_hua').on('click', function() {
+			var c = document.getElementById("hua_CAV");
+			var ctx = c.getContext('2d');
+			ctx.clearRect(0, 0, c.width, c.height);
+			hua.splice(0, hua.length);
+			$('#shixian').hide();
+			$('.quyu').remove();
+			$('#huitu input[value=5]').prop('checked', true);
+			_id = 1;
+		});
+		//将热图保存到本地
+		$('#shangchuan').on('click', function() {
+			var cav = document.getElementById("hua_CAV");
+			var cxt = cav.getContext('2d');
+			var cavData = cxt.getImageData(0, 0, cav.width, cav.height);
+			var cav2 = document.getElementById("Main_CAV");
+			var cxt2 = cav2.getContext('2d');
+			var cavData2 = cxt2.getImageData(0, 0, cav2.width, cav2.height);
+			var cav3 = document.createElement("canvas");
+			cav3.width = cav2.width;
+			cav3.height = cav2.height;
+			var cxt3 = cav3.getContext('2d');
+			cxt3.drawImage(cav2, 0, 0, cav3.width, cav3.height, 0, 0, cav3.width, cav3.height);
+			cxt3.drawImage(cav, 0, 0, cav3.width, cav3.height, 0, 0, cav3.width, cav3.height);
+			var img = new Image();
+			img.src = cav2.toDataURL('image/png');
+			var sava = document.createElementNS('http://www.w3.org/1999/xhtml', 'a');
+			sava.href = img.src;
+			var s = itemARRAY[NOW].ADD.split('/');
+			var s1 = s[s.length - 1];
+			var s2 = s1.substring(0, s1.length - 4);
+			sava.download = s2;
+			var even = document.createEvent('MouseEvents');
+			even.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+			sava.dispatchEvent(even);
+		})
+		var saveFile = function(data, filename) {
+			var save_link = document.createElementNS('http://www.w3.org/1999/xhtml', 'a');
+			save_link.href = data;
+			save_link.download = filename;
+			var event = document.createEvent('MouseEvents');
+			event.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+			save_link.dispatchEvent(event);
+		};
+		$(function() {
+			$('.main').css('left', '-262px');
+			var expanded = true;
+			//拉开选中对话框后，添加显示页数的数字
+			$('.bar').click(function() {
+				if (expanded) {
+					$('.edis').remove();
+					savetoED(imgs);
+					getFuture(imgs);
+					showPage(nowPAGE, futPage);
+					$('.main').animate({
+						left: '0'
+					}, 500);
+					$('.bar').css('background-position', '-25px 0px');
+					$('.bar').css('right', '-25px')
+				}
+				else {
+					$('.edis').remove();
+					$('.main').animate({
+						left: '-262px'
+					}, 500);
+					$('.bar').css('background-position', '-0px 0px');
+					$('.bar').css('right', '-45px')
+				}
+				expanded = !expanded;
+			});
+		});
+		$('#hua_CAV').on('mousedown', function(event) {
+			var e = event || window.event;
+			x = e.pageX - marLeft;
+			y = e.pageY - marTop;
+			getHuasha();
+			isclick = true;
+			if (huasha == 5) {
+				isdrag = true; //如果勾选的是不画图选项，则不管点击在哪里isdrag为true，以标记为允许拖动
+				clickCAV();
+			}
+			else {
+				isdrag = false; //当勾选的不为5时，isdrag为false，永远执行画图选项
+			};
+			if (isdrag == false) {
+				if (huasha == 3) {
+					huadian(x, y);
+					var c = document.getElementById("hua_CAV");
+					var ctx = c.getContext('2d');
+					ctx.font = '17px Arial';
+					var fnX = x + 5;
+					var fnY = y + 15;
+					var maxWid = $('#Main_CAV').width();
+					var maxHei = $('#Main_CAV').height();
+					if (fnX + 5 > maxWid) {
+						fnX = x - 10;
+					}
+					if (fnY + 5 > maxHei) {
+						fnY = y + 15;
+					}
+					ctx.fillText(hua.length + 1, fnX, fnY);
+				}
+			};
+		});
+		$('#hua_CAV').on('mousemove', function(event) {
+			var e = event || window.event;
+			xx = e.pageX - marLeft;
+			yy = e.pageY - marTop;
+			getHuasha();
+			if (chckes) {
+				showTemp(xx, yy);
+			};
+			if (isclick == true) {
+				clear_Hua();
+				reHua();
+				if (isdrag == false) {
+					xx = e.pageX - marLeft;
+					yy = e.pageY - marTop;
+					var c = document.getElementById("hua_CAV");
+					var ctx = c.getContext('2d');
+					ctx.font = '17px Arial';
+					var fnX = xx + 5;
+					var fnY = yy + 15;
+					var maxWid = $('#Main_CAV').width();
+					var maxHei = $('#Main_CAV').height();
+					if (fnX + 5 > maxWid) {
+						fnX = x - 10;
+					}
+					if (fnY + 5 > maxHei) {
+						fnY = y + 15;
+					}
+					if (huasha == 1) {
+						juxing(x, y, xx, yy);
+						ctx.fillText(hua.length + 1, fnX, fnY);
+					}
+					else
+					if (huasha == 2) {
+						yuanxing(x, y, xx, yy);
+						ctx.fillText(hua.length + 1, fnX, fnY);
+					}
+					else
+					if (huasha == 4) {
+						huaxian(x, y, xx, yy);
+						ctx.fillText(hua.length + 1, fnX, fnY);
+					}
+				}
+				else {
+					if (xuanzhong.shape == 1) {
+						var _xx1 = e.pageX - marLeft;
+						var _yy1 = e.pageY - marTop;
+						var _item = xuanzhong.con.split(',');
+						var _a = Number(_item[0]),
+							_b = Number(_item[1]),
+							_aa = Number(_item[2]),
+							_bb = Number(_item[3]);
+						_wid = _aa - _a,
+							_hei = _bb - _b,
+							_widd = _wid / 2;
+						_heii = _hei / 2;
+						var _m = (_xx1 - _widd) + ',' + (_yy1 - _heii) + ',' + (_xx1 + _widd) + ',' + (_yy1 + _heii);
+						xuanzhong.con = _m;
+					}
+					if (xuanzhong.shape == 2) {
+						var _xx1 = e.pageX - marLeft;
+						var _yy1 = e.pageY - marTop;
+						var _item = xuanzhong.con.split(',');
+						var _a = Number(_item[0]),
+							_b = Number(_item[1]),
+							_aa = Number(_item[2]),
+							_bb = Number(_item[3]);
+						var _m = _xx1 + ',' + _yy1 + ',' + (_aa + _xx1 - _a) + ',' + (_bb + _yy1 - _b);
+						xuanzhong.con = _m;
+					}
+					if (xuanzhong.shape == 3) {
+						var _xx1 = e.pageX - marLeft;
+						var _yy1 = e.pageY - marTop;
+						var _item = xuanzhong.con.split(',');
+						var _a = Number(_item[0]),
+							_b = Number(_item[1]),
+							_m = _xx1 + ',' + _yy1;
+						xuanzhong.con = _m;
+					}
+					if (xuanzhong.shape == 4) {
+						var _xx1 = e.pageX - marLeft;
+						var _yy1 = e.pageY - marTop;
+						var _item = xuanzhong.con.split(',');
+						var _a = Number(_item[0]),
+							_b = Number(_item[1]),
+							_aa = Number(_item[2]),
+							_bb = Number(_item[3]);
+						var _m = _xx1 + ',' + _yy1 + ',' + (_aa + _xx1 - _a) + ',' + (_bb + _yy1 - _b);
+						xuanzhong.con = _m;
+					}
+				}
+			}
+			else {
+				if (huasha == 5) {
+					clickCAV();
+					if (isdrag == true) {
+						var hue = document.getElementById("huaban");
+						hue.style.cursor = 'move';
+					}
+					if (isdrag == false) {
+						var hue = document.getElementById("huaban");
+						hue.style.cursor = 'default';
+					}
+				}
+			}
+		});
+		$('#hua_CAV').on('mouseup', function(event) {
+			var e = event || window.event;
+			xx = e.pageX - marLeft;
+			yy = e.pageY - marTop;
+			if (isdrag == false) {
+				if (Math.abs(xx - x) > 3 && Math.abs(yy - y) > 3) {
+					if (huasha == 1) {
+						doSaveJU(x, y, xx, yy);
+					}
+					else
+					if (huasha == 2) {
+						doSaveYUAN(x, y, xx, yy);
+					}
+					else
+					if (huasha == 4) {
+						doSaveXIAN(x, y, xx, yy);
+					}
+					$('.quyu').remove();
+					_id = 1;
+					showWens();
+				}
+				if (huasha == 3) {
+					doSaveDIAN(x, y);
+				}
+			}
+			if (xuanzhong != null) {
+				var id = xuanzhong.ID;
+				$('#' + (id + 1)).remove();
+				var con = xuanzhong.con.split(',');
+				var a = Number(con[0]);
+				var b = Number(con[1]);
+				var aa = Number(con[2]);
+				var bb = Number(con[3]);
+				showWEN(a, b, aa, bb, id + 1);
+			}
+			xuanzhong = null;
+			isdrag = false;
+			isclick = false;
+		});
+		//获取绘图选项框信息，保存到huasha
+		function getHuasha() {
+			var _a = $('#huitu input[name="o"]:checked').val();
+			huasha = _a;
+		}
+		//清空画布
+		function clear_Hua() {
+			var c = document.getElementById("hua_CAV");
+			var ctx = c.getContext('2d');
+			ctx.clearRect(0, 0, c.width, c.height);
+		}
+		//将数组中保存的图画到画板上
+		function reHua() {
+			if (hua) {
+				if (hua.length == 0) {
+					return false;
+				}
+				else {
+					for (var i = 0; i < hua.length; i++) {
+						if (hua[i].shape == 1) {
+							var _item = hua[i].con.split(',');
+							var _a = Number(_item[0]),
+								_b = Number(_item[1]),
+								_aa = Number(_item[2]),
+								_bb = Number(_item[3]);
+							juxing(_a, _b, _aa, _bb);
+						}
+						else if (hua[i].shape == 2) {
+							var _item = hua[i].con.split(',');
+							var _a = Number(_item[0]),
+								_b = Number(_item[1]),
+								_aa = Number(_item[2]),
+								_bb = Number(_item[3]);
+							yuanxing(_a, _b, _aa, _bb);
+						}
+						else if (hua[i].shape == 3) {
+							var _item = hua[i].con.split(',');
+							var _a = Number(_item[0]),
+								_b = Number(_item[1]);
+							huadian(_a, _b);
+						}
+						else if (hua[i].shape == 4) {
+							var _item = hua[i].con.split(',');
+							var _a = Number(_item[0]),
+								_b = Number(_item[1]),
+								_aa = Number(_item[2]),
+								_bb = Number(_item[3]);
+							huaxian(_a, _b, _aa, _bb);
+						}
+						adIndex(hua[i], i + 1);
+					}
+				}
+			}
+		}
+		//给每个图形添加下标,a为对象,b为下标
+		function adIndex(a, b) {
+			//		console.log(a);
+			var c = document.getElementById("hua_CAV");
+			var ctx = c.getContext('2d');
+			ctx.font = '17px Arial';
+			var _t = a.con.split(',');
+			var iniX;
+			var iniY;
+			var numberX;
+			var numberY;
+			if (a.shape != 3) {
+				iniX = Number(_t[0]);
+				iniY = Number(_t[1]);
+				numberX = Number(_t[2]) + 5;
+				numberY = Number(_t[3]) + 15;
+			}
+			else {
+				iniX = Number(_t[0]) - 5;
+				iniY = Number(_t[1]) - 5;
+				numberX = Number(_t[0]) + 5;
+				numberY = Number(_t[1]) + 15;
+			}
+			var maxWid = $('#Main_CAV').width();
+			var maxHei = $('#Main_CAV').height();
+			if (numberX + 5 > maxWid) {
+				numberX = iniX - 10;
+			}
+			if (numberY + 5 > maxHei) {
+				numberY = iniY;
+			}
+			ctx.fillText(b, numberX, numberY);
+		}
+		//判断选中	1矩形2圆形3点4线
+		function clickCAV(event) {
+			var e = event || window.event;
+			var _x = e.pageX - marLeft;
+			var _y = e.pageY - marTop;
+			var _xs = new Array();
+			var _ys = new Array();
+			for (var i = 0; i < hua.length; i++) {
+				var _item = hua[i].con.split(',');
+				var _a = Number(_item[0]),
+					_b = Number(_item[1]),
+					_aa = Number(_item[2]),
+					_bb = Number(_item[3]);
+				_a = parseInt(_a);
+				_b = parseInt(_b);
+				_aa = parseInt(_aa);
+				_bb = parseInt(_bb);
+				var _amin = Math.min(_a, _aa);
+				var _bmin = Math.min(_b, _bb);
+				var _amax = Math.max(_a, _aa);
+				var _bmax = Math.max(_b, _bb);
+				_x = parseInt(_x);
+				_y = parseInt(_y);
+				if (hua[i].shape != 3 && hua[i].shape != 2) {
+					if (_amin < _x && _x < _amax && _bmin < _y && _y < _bmax) {
+						hua[i].sel = true;
+						xuanzhong = hua[i];
+						isdrag = true;
+						return true;
+					}
+					else {
+						isdrag = false;
+						xuanzhong = null;
+					}
+				}
+				else if (hua[i].shape == 3) {
+					if (_a < _x & _x < (_a + 5) & _b < _y & _y < (_b + 5)) {
+						hua[i].sel = true;
+						xuanzhong = hua[i];
+						isdrag = true;
+						return true;
+					}
+					else {
+						isdrag = false;
+						xuanzhong = null;
+					}
+					//圆形位置判断问题待解决
+				}
+				else if (hua[i].shape == 2) {
+					var XR = Number(_aa) - Number(_a);
+					var YR = Number(_bb) - Number(_b);
+					var tx = Number(_aa) - XR * 2;
+					var ty = Number(_bb) - YR * 2;
+					var TLx = Math.min(tx, _aa);
+					var TLy = Math.min(ty, _bb);
+					var BRx = Math.max(tx, _aa);
+					var BRy = Math.max(ty, _bb);
+					if (TLx < _x && _x < BRx && TLy < _y && _y < BRy) {
+						hua[i].sel = true;
+						xuanzhong = hua[i];
+						isdrag = true;
+						return true;
+					}
+					else {
+						isdrag = false;
+						xuanzhong = null;
+					}
+				}
+				else {
+					isdrag = false;
+					xuanzhong = null;
+				}
+			}
+			if (hua.length == 0) {
+				isdrag = false;
+			}
+		}
+		//画图对象
+		function duixiang(ID, shape, con, sel) {
+			this.ID = ID;
+			this.shape = shape;
+			this.con = con;
+			this.sel = sel;
+		}
+		//画各种图形
+		function juxing(a, b, aa, bb) {
+			var c = document.getElementById("hua_CAV");
+			var ctx = c.getContext('2d');
+			ctx.beginPath();
+			ctx.moveTo(a, b);
+			ctx.lineTo(aa, b);
+			ctx.lineTo(aa, bb);
+			ctx.lineTo(a, bb);
+			ctx.lineTo(a, b);
+			ctx.closePath();
+			ctx.strokeStyle = 'black';
+			ctx.stroke();
+		}
+		//绘制圆形方法升级，改为椭圆
+		if (CanvasRenderingContext2D.prototype.ellipse == undefined) {
+			CanvasRenderingContext2D.prototype.ellipse = function(x, y, radiusX, radiusY, rotation, startAngle, endAngle, antiClockwise) {
+				this.save();
+				this.translate(x, y);
+				this.rotate(rotation);
+				this.scale(radiusX, radiusY);
+				this.arc(0, 0, 1, startAngle, endAngle, antiClockwise);
+				this.restore();
+			}
+		}
+		
+		function yuanxing(a, b, aa, bb) {
+			var c = document.getElementById("hua_CAV");
+			var ctx = c.getContext('2d');
+			ctx.beginPath();
+			ctx.ellipse(a, b, Math.abs(aa - a), Math.abs(bb - b), 0, 0, Math.PI * 2, true);
+			ctx.stroke();
+		}
+		
+		function huadian(a, b) {
+			var c = document.getElementById("hua_CAV");
+			var ctx = c.getContext('2d');
+			ctx.beginPath();
+			var R = 5;
+			ctx.arc(a, b, R, 0, Math.PI * 2);
+			ctx.fillStyle = 'black';
+			ctx.fill();
+			ctx.stroke();
+		}
+		
+		function huaxian(a, b, aa, bb) {
+			var c = document.getElementById("hua_CAV");
+			var ctx = c.getContext('2d');
+			ctx.beginPath();
+			ctx.moveTo(a, b);
+			ctx.lineTo(aa, bb);
+			ctx.stroke();
+		}
+		//将各种图像保存到数组中
+		function doSaveJU(a, b, aa, bb) {
+			var _id = hua.length;
+			var _shape = 1;
+			var _con = a + ',' + b + ',' + aa + ',' + bb;
+			var _sel = false;
+			var _item = new duixiang(_id, _shape, _con, _sel);
+			hua.push(_item);
+		}
+		
+		function doSaveYUAN(a, b, aa, bb) {
+			var _id = hua.length;
+			var _shape = 2;
+			var _con = a + ',' + b + ',' + aa + ',' + bb;
+			var _sel = false;
+			var _item = new duixiang(_id, _shape, _con, _sel);
+			hua.push(_item);
+		}
+		
+		function doSaveDIAN(a, b) {
+			var _id = hua.length;
+			var _shape = 3;
+			var _con = a + ',' + b;
+			var _sel = false;
+			var _item = new duixiang(_id, _shape, _con, _sel);
+			hua.push(_item);
+		}
+		
+		function doSaveXIAN(a, b, aa, bb) {
+			var _id = hua.length;
+			var _shape = 4;
+			var _con = a + ',' + b + ',' + aa + ',' + bb;
+			var _sel = false;
+			var _item = new duixiang(_id, _shape, _con, _sel);
+			hua.push(_item);
+		}
+		//点击后显示温度,a,b为鼠标当前x，y坐标
+		function showTemp(a, b) {
+			var _width = parseInt($('#Main_CAV').width());
+			var _height = parseInt($('#Main_CAV').height());
+			var _xsuo = _width / comRawWidth;
+			var _ysuo = _height / comRawHeight;
+			var _xzhen = parseInt(a / _xsuo);
+			var _yzhen = parseInt(b / _ysuo);
+			var _index = ((_yzhen - 1) * TWidth + _xzhen - 1);
+			var wen = TrawData[_index];
+			var wen = (wen - RAW_TO_TEMP_SUBTRACTOR) / RAW_TO_TEMP_DIVISOR;
+			wen = wen.toFixed(4);
+			document.getElementById("xianshi").innerHTML = wen;
+			var xianshi = document.getElementById("shixian");
+			xianshi.style.display = 'block';
+			var zuoH = $('#shangzuo').height();
+			xianshi.style.marginTop = (b + zuoH) + 'px';
+			xianshi.style.marginLeft = (a + 5) + 'px';
+		}
+		//显示整个canvas最高低温
+		function showMIN() {
+			var _len = rgbdate.data.length
+			var _MINIs = new Array();
+			for (var i = 0; i < (_len / 4); i++) {
+				if (rgbdate.data[i * 4] == TIaoses[0]) {
+					if (rgbdate.data[i * 4 + 1] == TIaoses[1]) {
+						if (rgbdate.data[i * 4 + 2] == TIaoses[2]) {
+							_MINIs.push(i);
+						}
+					}
+				}
+			}
+			var _MINwen = (MINwendu - RAW_TO_TEMP_SUBTRACTOR) / RAW_TO_TEMP_DIVISOR;
+			var _MAXwen = (MAXwendu - RAW_TO_TEMP_SUBTRACTOR) / RAW_TO_TEMP_DIVISOR;
+			var _x = (_MINIs[0] * 4) % TWidth;
+			var _y = (_MINIs[0] * 4 - _x) / TWidth;
+			var str = '';
+			str += '<p id="minn" style="position: absolute;margin-left:' + _x + 'px;margin-top:' + _y + 'px"' + '>';
+			str += '<span class="caret"></span>' + _MINwen.toFixed(4) + '</p>';
+			$('#line2').prepend(str);
+		}
+		//bug:如何在调色板改变时找到最大温度的位置（不能根据图片矩阵直接去与调色板最大位置对比）
+		function showMAX() {
+			var _len = rgbdate.data.length
+			var _MINIs = new Array();
+			for (var i = 0; i < (_len / 4); i++) {
+				if (RGBshuzu[i * 4] == TIaoses[765]) {
+					if (RGBshuzu[i * 4 + 1] == TIaoses[766]) {
+						if (RGBshuzu[i * 4 + 2] == TIaoses[767]) {
+							_MINIs.push(i);
+						}
+					}
+				}
+			}
+			var _MAXwen = (MAXwendu - RAW_TO_TEMP_SUBTRACTOR) / RAW_TO_TEMP_DIVISOR;
+			var _x = (_MINIs[0] * 4) % TWidth;
+			console.log(RGBshuzu);
+			var _y = (_MINIs[0] * 4 - _x) / THeight;
+			var str = '';
+			str += '<p id="maxx" style="position: absolute;margin-left:' + _x + 'px;margin-top:' + _y + 'px"' + '>';
+			str += '<span class="caret"></span>' + _MAXwen.toFixed(4) + '</p>';
+			$('#line2').prepend(str);
+		};
+		//清除添加的当前温度等数据,参数a为需要清除的ID
+		function cleandog(a) {
+			$('#' + a).remove();
+		};
+		$('#chck').on('click', function() {
+			if (this.checked) {
+				chckes = true;
+			}
+			else {
+				chckes = false;
+				$('#shixian').hide();
+			}
+		});
+		$('#chck2').on('click', function() {
+			if (this.checked) {
+				//showMAX();
+			}
+			else {
+				cleandog('maxx');
+			}
+		});
+		$('#chck3').on('click', function() {
+			if (this.checked) {
+				showMIN();
+			}
+			else {
+				cleandog('minn');
+			}
+		});
+		$('#chck4').on('click', function() {
+			if (this.checked) {
+				quyuTemp = true;
+			}
+			else {
+				quyuTemp = false;
+				$('.quyu').remove();
+			}
+		})
+		//选中区域的温度,需要参数ab为点击时的xy，aabb为鼠标离开时的点
+		var _idx = 1;
+		
+		function showWEN(a, b, aa, bb, id) {
+			var _width = parseInt($('#Main_CAV').width());
+			var _height = parseInt($('#Main_CAV').height());
+			//加入越界判断
+			var xmin = Math.min(a, aa);
+			var xmax = Math.max(a, aa);
+			var ymin = Math.min(b, bb);
+			var ymax = Math.max(b, bb);
+			a = Math.max(0, xmin); //表示区域的最小值应大于0
+			aa = Math.min(_width, xmax); //表示区域最大值应小于canvas
+			b = Math.max(0, ymin);
+			bb = Math.min(_height, ymax);
+			var _xsuo = _width / TWidth;
+			var _ysuo = _height / THeight;
+			var _xzhen = parseInt(a / _xsuo);
+			var _yzhen = parseInt(b / _ysuo);
+			var _xxzhen = parseInt(aa / _xsuo);
+			var _yyzhen = parseInt(bb / _ysuo);
+			var minIndex;
+			var maxIndex;
+			var lineCounts;
+			var _xmax = Math.max(_xzhen, _xxzhen);
+			var _xmin = Math.min(_xzhen, _xxzhen);
+			var _ymax = Math.max(_yzhen, _yyzhen);
+			var _ymin = Math.min(_yzhen, _yyzhen);
+			minIndex = ((_ymin - 1) * TWidth + _xmin - 1);
+			maxIndex = ((_ymax - 1) * TWidth + _xmax - 1);
+			lineCounts = (_ymax) - (_ymin) + 1;
+			var _max = 0;
+			var _min = 1000000;
+			for (var i = 1; i < lineCounts; i++) {
+				for (var j = minIndex; j < maxIndex; j++) {
+					if (TrawData[j] > _max) {
+						_max = TrawData[j];
+					};
+					if (TrawData[j] < _min) {
+						_min = TrawData[j];
+					}
+				}
+				minIndex = minIndex + Number(TWidth);
+				maxIndex = maxIndex + Number(TWidth);
+			}
+			var maxwen = (_max - RAW_TO_TEMP_SUBTRACTOR) / RAW_TO_TEMP_DIVISOR;
+			var minwen = (_min - RAW_TO_TEMP_SUBTRACTOR) / RAW_TO_TEMP_DIVISOR;
+			maxwen = maxwen.toFixed(2);
+			minwen = minwen.toFixed(2);
+			avgwen = Number(maxwen) + Number(minwen);
+			avgwen = (avgwen / 2).toFixed(2);
+			var str = '';
+			str += '<tr class="quyu" id="' + id + '">';
+			str += '<td>' + (id) + '</td>';
+			str += '<td>' + maxwen + '</td>';
+			str += '<td>' + minwen + '</td>';
+			str += '<td>' + avgwen + '</td>';
+			str += '</tr>';
+			_idx = _idx + 1;
+			var nex = document.getElementById(id + 1);
+			var nexI = id + 1;
+			if (nex) {
+				$(str).insertBefore($('#' + nexI));
+			}
+			else {
+				$('#wendu').append(str);
+			}
+		}
+		//对数组中的每个对象执行showwen方法,未加入越界判断
+		function showWens() {
+			for (var i = 0; i < hua.length; i++) {
+				if (hua[i].shape == 1) {
+					var pos = hua[i].con.split(',');
+					var _a = pos[0];
+					var _b = pos[1];
+					var _aa = pos[2];
+					var _bb = pos[3];
+					var _ID = hua[i].ID;
+					showWEN(_a, _b, _aa, _bb, _ID + 1);
+				}
+				else if (hua[i].shape == 2) {
+					var pos = hua[i].con.split(',');
+					var _a = pos[0];
+					var _b = pos[1];
+					var _aa = pos[2];
+					var _bb = pos[3];
+					var _ID = hua[i].ID;
+					var XR = Number(_aa) - Number(_a);
+					var YR = Number(_bb) - Number(_b);
+					var tx = Number(_a) - XR * 2;
+					var ty = Number(_b) - YR * 2;
+					var TLx = Math.min(tx, _aa);
+					var TLy = Math.min(ty, _bb);
+					var BRx = Math.max(tx, _aa);
+					var BRy = Math.max(ty, _bb);
+					if (TLx < 0) {
+						TLx = 0;
+					}
+					if (TLy < 0) {
+						TLy = 0;
+					}
+					if (BRx < 0) {
+						BRx = 0;
+					}
+					if (BRy < 0) {
+						BRy = 0
+					}
+					showWEN(TLx, TLy, BRx, BRy, _ID + 1);
+				}
+			}
+		}
+	</script>
+</html>

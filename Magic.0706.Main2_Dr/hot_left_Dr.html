@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>我是病人列表</title>
+		<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css"/>
+		
+		<script src="funJs/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/bootstrap.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/jquery.cookie.js" type="text/javascript" charset="utf-8"></script>
+		<script src="funJs/Common.js" type="text/javascript" charset="utf-8"></script>
+		<style type="text/css">
+			body{
+				overflow-y: scroll;
+				
+			}
+			.panel-body{
+				width: 100%;
+				padding: 5px;
+			}
+			.panel-info{
+				margin-top: 5%;
+			}
+			#tittle_1{
+				padding-left: 0;
+				padding-right: 0;
+			}
+			tr{
+				cursor: pointer;
+			}
+			td{
+				padding-left: 15% !important;
+				color: #337ab7;
+			}
+			.glyphicon{
+				float: right;
+			}
+			.listC{
+				padding-bottom: 0 !important;
+				color: black;
+			}
+			.grade_hospital_dt dl{
+				display: none;
+			}
+			.grade_hospital_dt a{
+				text-align: left;
+			}
+			.grade_hospital_a{
+				width: 100%;
+			}
+			.grade_time_a{
+				width: 80%;
+			}
+			.grade_hospital_dt p{
+				text-align: left;
+			}
+			.check_span{
+				color: #fff;
+    			background-color: rgba(91,192,222,0.8);
+    			border-color: #46b8da;
+			}
+			dt{
+				margin-top: 5px;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<div class="row">
+				<div class="col-lg-12 col-md-12 col-sm-12" id="tittle_1">
+					<div class="panel panel-info">
+						<div class="panel-heading">
+							<h3 class="panel-title text-left">医院列表</h3>
+						</div>
+						<div class="panel-body">
+							<dl class="grade_hospital_dl" id="hospital_main">
+							</dl>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+	<script type="text/javascript">
+		//此页面暂时废弃，所以暂未做修改
+		$.cookie('Authorization2');
+		var hosItems=new Array();
+		$(document).ready(function () {
+			$('.panel-body').on('click','p',function () {
+				$(this).next().toggle('normal');
+			});
+			getHospitals('Test');
+			for (var x in hosItems) {
+				var str='';
+				str+='<dt class="grade_hospital_dt" id="hospital_dt'+x+'">';
+				str+='<p class="btn btn-primary grade_hospital_a" id="hospital_a'+x+'" onclick="triangleDown('+x+')">'+hosItems[x].Name;
+				str+='<span class="glyphicon glyphicon-triangle-right" id="hospital_span'+x+'" flag="false"></span></p>';
+				str+='<dl class="grade_time_dl" id="time_dl'+x+'">';
+				str+='</dl>';
+				str+='</dt>';
+				$('#hospital_main').append(str);
+			}
+		});
+		//获取可访问的医院
+		function getHospitals (url) {
+			$.ajax({
+				type:'get',
+				url:'http://'+comServerIP+'/'+url+'/AccessableHospitalInfo',
+				async:false,
+				headers:{'Authorization':$.cookie('Authorization2')},
+				success:function (data,status,xhr) {
+					//console.log(data);
+					for (var x in data) {
+						var hosItem=new hosItemC();
+						hosItem.HID=data[x].m_strHID;
+						hosItem.Name=data[x].m_strName;
+						hosItem.Address=data[x].m_strAddress;
+						hosItems.push(hosItem);
+					}
+				},
+				error:function (xhr,status,errorThrown) {
+					console.log(xhr.getAllResponseHeaders());
+				}
+			});
+		}
+		//获取某个医院的病人
+		function getUsers (url,HID) {
+			var PIDs=new Array();
+			$.ajax({
+				type:'get',
+				url:'http://'+comServerIP+'/'+url+'/PatientInfo/'+HID+'/00000000',
+				async:false,
+				headers:{'Authorization':$.cookie('Authorization2')},
+				success:function (data,status,xhr) {
+					for (var i in data) {
+						PIDs.push(data[i].m_strPID);
+					}
+					console.log(data);
+				},
+				error:function (xhr,status,errorThrown) {
+					console.log(xhr.getAllResponseHeaders());
+				}
+			});
+			//console.log(PIDs);
+			return PIDs;
+		}
+		//获取某个医院某个病人的全部检查
+		function getCheckbyUser (url,HID,PID) {
+			var Checks=new Array();
+			$.ajax({
+				type:'get',
+				url:'http://'+comServerIP+'/'+url+'/ExaminationInfo/'+HID+'/'+PID+'/00000000',
+				async:false,
+				headers:{'Authorization':$.cookie('Authorization2')},
+				success:function (data,status,xhr) {
+					if (data.length>0) {
+						for (var k in data) {
+							if (data[k]) {
+								var check=new Check(data[k].m_iIsAnalyzed,data[k].m_strAuthUsers,data[k].m_strDocName,data[k].m_strExamID,data[k].m_strExamTime,data[k].m_strPID,data[k].m_strSnum);
+								Checks.push(check);
+							}	
+						}
+					}
+				},
+				error:function (xhr,status,errorThrown) {
+					console.log(xhr.getAllResponseHeaders());
+				}
+			});
+			return Checks;
+		}
+		function hosItemC (HID,Name,Address) {
+			this.HID=HID;
+			this.Name=Name;
+			this.Address=Address;
+		}
+		//点击后
+		function triangleDown (e) {
+			var hid=hosItems[e].HID;
+			//附加代码，避免多次点击重复插入
+			var len=$('#hospital_dt'+e).find('dt').length;
+			if (len==0) {
+				insertCheck('Web',hid);				
+			}
+			tr_css(e);
+		}
+		//向sidebar插入检查记录数据，在点击后执行
+		function insertCheck (url,HID) {
+			var index;
+			for (var i=0;i<hosItems.length;i++) {
+				if (hosItems[i].HID==HID) {
+					index=i;
+				}
+			}
+			var mainLists=new Array();
+			var pids=getUsers(url,HID);
+			for (var j=0;j<pids.length;j++) {
+				var checks=getCheckbyUser(url,HID,pids[j]);
+				
+				for (var k=0;k<checks.length;k++) {
+					mainLists.push(checks[k]);
+				}
+			}
+			mainLists=mainLists.sort(compare('Snum'));
+			var times=new Array();	//存放时间，以待比较，避免重复插入dt
+			for (var m=0;m<mainLists.length;m++) {
+				var snum=mainLists[m].Snum;
+				var time=snum.substr(0,8);
+				var year=snum.substr(0,4);
+				var month=snum.substr(4,2);
+				var day=snum.substr(6,2);
+				//console.log(time);
+				var flag=true;
+				for (var n=0;n<times.length;n++) {
+					if (times[n]==time) {
+						flag=false;
+						break;
+					} else{
+						flag=true;
+					}
+				}
+				if (flag) {
+					times.push(time);
+					var str='';
+					str+='<dt class="grade_time_dt">';
+					str+='<p class="btn btn-info grade_time_a" id="time_a'+time+'">'+year+'-'+month+'-'+day;
+					str+='<span class="" id="time_span'+time+'">';
+					str+='</span></p>';
+					str+='<dl class="grade_check_dl" id="check_dl'+time+'"></dl>';
+					str+='</dt>';
+					$('#time_dl'+index).append(str);
+				}
+				var str='';
+				str+='<dt class="grade_check_dt">';
+				str+='<span class="btn btn-sm btn-info check_span">'+mainLists[m].Snum;
+				str+='</span></dt>';
+				str+='</dt>';
+				$('#check_dl'+time).append(str);
+				flag=true;
+			}
+		}
+		//点击后添加效果,适用于医院级别
+		function tr_css (e) {
+//			这种方法可行，但这种方法无法精确定位到点击的那个，即重复点击同一个的时候无法精准判断
+//			$('.info').removeClass('info');
+//			$('.glyphicon').removeClass('glyphicon-triangle-bottom').addClass('glyphicon-triangle-right');
+//			$('#hospital'+e).addClass('info');
+//			$('#span'+e).addClass('glyphicon-triangle-bottom');
+			//console.log(e);
+			for (var i=0;i<hosItems.length;i++) {
+				//console.log(hosItems[i].HID);
+				if (i!=e) {
+					//$('#hospital_a'+i).next().toggle();
+					var flag=$('#hospital_span'+i).attr('flag');
+					if (flag=='true') {
+						$('#hospital_span'+i).removeClass('glyphicon-triangle-bottom').addClass('glyphicon-triangle-right');
+						$('#hospital_span'+i).attr('flag','false');
+						$('#hospital_a'+i).next().toggle('slow');
+					}
+				}	
+			}
+			var fla=$('#hospital_span'+e).attr('flag');
+			if (fla=='false') {
+				$('#hospital_span'+e).attr('flag','true');
+				$('#hospital_span'+e).removeClass('glyphicon-triangle-right').addClass('glyphicon-triangle-bottom');
+			} else{
+				$('#hospital_span'+e).attr('flag','false');
+				$('#hospital_span'+e).removeClass('glyphicon-triangle-bottom').addClass('glyphicon-triangle-right');
+			}
+		}
+		//检查的构造器
+		function Check (isAnalyzed,AuthUsers,DocName,ExamID,ExamTime,PID,Snum) {
+			this.isAnalyzed=isAnalyzed;
+			this.AuthUsers=AuthUsers;
+			this.DocName=DocName;
+			this.ExamID=ExamID;
+			this.ExamTime=ExamTime;
+			this.PID=PID;
+			this.Snum=Snum;
+		}
+		//配合sort函数使用
+		var compare = function (prop) {
+			return function (obj1, obj2) {
+			    var val1 = obj1[prop];
+			    var val2 = obj2[prop];
+			    if (val1 < val2) {
+			        return 1;
+			    } else if (val1 > val2) {
+			        return -1;
+			    } else {
+			        return 0;
+				}            
+			} 
+		}
+		//由右边的页面调用的方法，目的是将值传给右边
+		//传递医院列表
+		function returnHospital () {
+			return hosItems;
+		}
+	</script>
+</html>

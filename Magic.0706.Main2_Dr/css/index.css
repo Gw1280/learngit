@@ -1,0 +1,197 @@
+@charset "utf-8";
+	body{
+		font-family: "微软雅黑";
+	}
+	#myCarousel{
+		width: 48.75%;
+		height: 470px;
+		margin-left: 10%;
+		margin-top: 5.5%;
+		float: left;
+	}
+	@media screen and (min-device-width: 1500px) {
+		#myCarousel{
+			width:43.75%;
+			margin-top: 6.5%;
+			margin-left: 14%;
+		}
+		#index_login{
+			margin-top: 13%;
+			margin-left: 12%;
+			font-size: 1.6rem;
+			width: 20%;
+		}
+	}
+	.carousel-inner{
+		width: 100%;
+		height: 100%;
+	}
+	.item{
+		width: 100%;
+		height: 100%;
+	}
+	.index_head{
+		width: 100%;
+		display: block;
+		border-bottom: 1px solid #c5c5c5;
+		background: #eff4fa;
+	}
+	.item img{
+		width: 100%;
+		height: 100%
+	}
+	.index_login{
+		width: 22.3%;
+		float: left;
+		margin-left: 10%;
+		margin-top: 7.5%;
+	}
+	.login_tb{
+		width: 100%;
+		border-radius: 5px;
+	}
+	tbody tr td{
+		height: 40px;
+	}
+	thead tr th{
+		height: 60px;
+		text-align: center;
+		font-size: 2em;
+		font-family: \5FAE\8F6F\96C5\9ED1;
+		font-weight: lighter;
+		background-color: #f9fbfe;
+		border-bottom: 1px solid #c0cdd9;
+	}
+	#tr_username,#tr_pwd{
+		display: block;
+		margin-top: 60px;
+	}
+	tbody{
+		margin-top: 60px;
+	}
+	#td_username,#td_pwd,#td_btn{
+		display: block;
+		width: 90%;
+		margin: 0 auto;
+		border-radius: 3px;
+		-moz-border-radius: 3px;
+		-webkit-border-radius: 3px;
+		-moz-border-radius: 3px;
+	}
+	#login_username,#login_password{
+		width: 100%;
+		height: 100%;
+		font-size: 1.2em;
+	}
+	#tr_btn{
+		display: block;
+		height: 50px;
+		margin-top: 10px;
+	}
+	#td_REM{
+		display: block;
+		margin-top: 10px;
+		margin-left: 20px;
+	}
+	#REM_tittle{
+		display: block;
+		margin-top: -2px;
+	}
+	#REM{
+		float: left;
+	}
+	tfoot{
+		margin-top: -50px;
+	}
+	#btn_login{
+		display: block;
+		width: 100%;
+		height: 100%;
+		font-size: 1.5em;
+		font-family: "microsoft yahei";
+		cursor: pointer;
+		background-color: #007ff4;
+		opacity: 0.6;
+		color: #fff;
+	}
+	#tr_hel{
+		display: block;
+		margin-top: 5px;
+		margin-left: 42.5%;
+		font-size: 0.8em;
+	}
+	#td_btn{
+		height: 100%;
+	}
+	input::-webkit-input-placeholder{}    /* 使用webkit内核的浏览器 */
+	input::-moz-placeholder{}                  /* Firefox版本4-18 */
+	input::-moz-placeholder{}                  /* Firefox版本19+ */
+	input::-ms-input-placeholder{}           /* IE浏览器 */
+	#pwd_Tips{
+		position: absolute;
+		display: block;
+		color: gray;
+		padding-top: 230px;
+		padding-left: 1.5%;
+		font-weight: 100;
+		font-size: 1.3em;
+	}
+	#footer{
+		background-color: rgba(177,207,247,0.3);
+		line-height: 10px;
+		height: 100%;
+		margin-top: 6.5%;
+	}
+	a{
+		text-decoration: none;
+	}
+	#mess_login{
+		position: absolute;
+		display: block;
+		margin-top: 15px;
+		padding-left: 1.5%;
+		color: #dc143c;
+		opacity: 0.9;
+		font-family: "microsoft yahei";
+		font-weight: 300;
+		font-size: 1em;
+		display: none;
+	}
+	#text{
+		padding-top: 8px;
+	}
+	.carousel-indicators{
+		bottom: 10px;
+		left: 90%;
+	}
+	#carousel-control-left{
+		width: 0;
+		top: 40%;
+		font-size: 5em;
+	}
+	#carousel-control-right{
+		width: 0;
+		top: 40%;
+		font-size: 5em;
+		right: 3%;
+	}
+	.col-lg-12,.col-sm-12,.col-xs-12,.col-md-12{
+		padding: 0;
+	}
+	.row1{
+		margin: 0;
+	}
+	#td_REM{
+		height: 25px;
+	}
+	#td_pdd{
+		height: 25px;
+	}
+	#tr_pdd{
+		display: block;
+		width: 90%;
+		margin-left: 15px;
+	}
+	#ide{
+		text-align: justify;
+	}

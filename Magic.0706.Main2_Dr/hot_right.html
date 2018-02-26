@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>我是现实热图的</title>
+		<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css"/>
+		<link rel="stylesheet" type="text/css" href="css/hot_right.css"/>
+		<link rel="stylesheet" type="text/css" href="css/swiper-3.4.2.min.css"/>
+		<link rel="stylesheet" type="text/css" href="css/fakeLoader.css"/>
+		
+		<script src="funJs/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/bootstrap.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/jquery.cookie.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/swiper-3.4.2.jquery.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="funJs/fakeLoader.js" type="text/javascript" charset="utf-8"></script>
+		<script src="funJs/Common.js" type="text/javascript" charset="utf-8"></script>
+		<script src="funJs/hot_right_fun.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/axjaxComm.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			
+			var tRheight=0;
+		function doCSS () {
+			var ifHeight=$.cookie('ifHeight');
+			//console.log(ifHeight);
+			//将页面中其他元素高度统统减去，剩下的即为canvas高度
+			var fRHeight=$('#firstRow').css('height').split('px');
+			var sRheight=$('#secondRow').css('height').split('px');
+			tRheight=ifHeight-Number(fRHeight[0])-Number(sRheight[0]);
+			$('#showCAV').height(tRheight-30);
+			$('#showCAV').width((tRheight-30)*comRawWidth/comRawHeight);
+			var CAV=document.getElementsByTagName('canvas');
+			//CAV.width((tRheight-30)*330/278);
+			//CAV.height(tRheight-30);
+			for (var i=0;i<CAV.length;i++) {
+				$('#mycav'+i).width((tRheight-30)*comRawWidth/comRawHeight);
+				$('#mycav'+i).height(tRheight-30);
+				document.getElementById("mycav"+i).width=$('#mycav'+i).width();
+				document.getElementById("mycav"+i).height=$('#mycav'+i).height();
+			}
+			$('#myCarousel').width((tRheight-30)*comRawWidth/comRawHeight);
+			$('#myCarousel').height(tRheight-30);
+		}			
+			$(document).ready(function () {
+				$(".fakeloader").fakeLoader({
+                    timeToHide:30000000,
+                    bgColor:"#d9edf7",
+                    spinner:"spinner2"
+                });
+                $(".fakeloader").width((tRheight-30)*comRawWidth/comRawHeight);
+                $(".fakeloader").height(tRheight-30);
+			})
+			function showCheck () {
+				window.parent.document.getElementById('sC_ExamID').value=window.parent.document.getElementById('hot_item_id').value;
+				var winLeft=window.parent.document.getElementById('main_left');
+				var winRight=window.parent.document.getElementById('main_right');
+				winLeft.style.display='none';
+				window.parent.document.getElementById('col2').className='';
+				window.parent.document.getElementById('col2').className='col-lg-12 col-sm-12 col-xs-12 col-md-12';
+				winRight.src='rep_right.html';
+				var sc_EID= window.parent.document.getElementById('sC_ExamID').value
+				$.cookie('sc_EID',sc_EID);
+			}
+		</script>
+	</head>
+	<body>
+		<div class="container">
+				<div class="row" id='firstRow'>
+				<div id="tittle" class="col-lg-12 col-md-12 col-sm-12 col-xs-12 text-center">
+					<div class="panel panel-info">
+						<div class="panel-heading">
+							<p id="hot_right_tittle">
+								<span id="hot_info"></span>检查热图
+							</p>
+						</div>
+					</div>
+				</div>
+			</div>
+			
+			<div class="row" id='secondRow'>
+				<div class="col-lg-12 col-xs-12 col-sm-12 col-md-12 text-right">
+					<button id='hot_detail' class="btn btn-info" onclick="showCheck()">查看报告</button>
+					<button id='unhot_detail' class="btn btn-info" disabled="disabled">未阅片无法查看报告</button>
+					<!--接收从hot_left传过来的检查ID-->
+					<span id='hot_item_id' style="display: none;"></span>
+				</div>
+			</div>
+				<!--热图列表				-->
+				<div class="row" id='thirdRow'>
+				<!--热图缩略图-->
+                <div id='myCarousel' class="carousel slide" data-interval = "" style="z-index: 100;">
+                	<div class="fakeloader"></div>
+                	<!--轮播指标-->
+                	<ol class="carousel-indicators" id='olList'>
+                	</ol>
+                	<!--轮播项目-->
+                	<div class="carousel-inner">
+                	</div>
+                	<!--轮播导航-->
+                	<a href="#myCarousel" class="carousel-control left" id='carousel-control-left' data-slide = "prev">&lsaquo;</a>
+                	<a href="#myCarousel" class="carousel-control right" id='carousel-control-right' data-slide = "next">&rsaquo;</a>
+                </div>
+			</div>
+		</div>
+	</body>
+</html>

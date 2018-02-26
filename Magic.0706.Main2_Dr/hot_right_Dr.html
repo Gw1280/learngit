@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>我是右侧</title>
+		<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css"/>
+		
+		<script src="funJs/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/bootstrap.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/jquery.cookie.js" type="text/javascript" charset="utf-8"></script>
+		<script src="funJs/Common.js" type="text/javascript" charset="utf-8"></script>
+		<style type="text/css">
+			#div_SearchTerm{
+				margin-top: 1%;
+			}
+			.container{
+				margin: 0;
+				width: 100%;
+			}
+			.underLine{
+				border-top: 2px solid cornflowerblue;
+				border-bottom: 2px solid cornflowerblue;
+				height: 5px;
+			}
+			#tips_selectHospital,#tips_SerNum,#tips_Name{
+				font-family: "微软雅黑";
+				font-size: 2rem;
+				font-weight: bold;
+				float: left;
+				margin-right: 0.5%;
+			}
+			#tips_SerNum,#tips_Name{
+				margin-left: 2%;
+			}
+			#options_Hospital{
+				float: left;
+				width: 15%;
+				font-size: 1.7rem;
+				padding: 0;
+				padding-left: 12px;
+			}
+			#div_SerNum{
+				margin-top: 1%;
+			}
+			#input_SerNum,#input_Name{
+				float: left;
+				line-height: 2.5rem;
+    			width: 20%;
+    			border-radius: 2px;
+    			border: 1px solid gray;
+    			font-family: "微软雅黑";
+    			font-size: 1.6rem;
+			}
+			#input_Name::-webkit-input-placeholder{
+				font-style: initial;
+			}
+			#input_Name::-moz-placeholder{
+				font-style: initial;
+			}
+			#input_Name::-ms-input-placeholder{
+				font-style: initial;
+			}
+			#btn_Search,#btn_Reset{
+				font-size: 1.6rem;
+				font-family: "微软雅黑";
+				font-weight: bold;
+			}
+			#btn_Search{
+				margin-left: 10%;
+			}
+			#table_showResult{
+				width: 100%;
+			}
+			.tr_check,th{
+				cursor: pointer;
+			}
+			thead{
+				background-color: #f2f4f6;
+				font-size: 1.6rem;
+			}
+			.tr_check:hover,th:hover{
+				text-decoration: underline;
+			}
+			span{
+				color: gainsboro;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<div class="row">
+				<div class="col-lg-12 col-sm-12 col-md-12" id="div_SearchTerm">
+					<p id="tips_selectHospital">选择医院:</p>
+					<select class="form-control" id='options_Hospital' onchange="">
+					</select>
+					<p id='tips_SerNum'>流水号:</p>
+					<input type="text" placeholder="" id="input_SerNum"/>
+					<p id='tips_Name'>姓名:</p>
+					<input type="text" placeholder="" id="input_Name"/>
+					<button type="button" class="btn btn-default" id="btn_Search">搜索</button>
+					<button type="button" class="btn btn-default" id="btn_Reset">重置</button>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-lg-12 col-md-12 col-sm-12 underLine" style="">
+					
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-lg-12 col-md-12 col-sm-12" id="div_showResult" style="">
+					<table id="table_checkList" class="table table-hover">
+						<thead>
+							<tr>
+								<th id="th_name">姓名<span id="th_name_span"></span></th>
+								<th id="th_sernum">流水号<span id="th_sernum_span"></span></th>
+								<th id="th_docname">医生<span id="th_docname_span"></span></th>
+								<th id="th_excatime">检查时间<span id="th_excatime_span"></span></th>
+								<th id="th_isAnalyzed">阅片状态<span id="th_isAnalyzed_span"></span></th>
+							</tr>
+						</thead>
+						<tbody class="tbody_showResult">
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</body>
+	<script type="text/javascript">
+		//因为此页面只有医生能访问，所以不需要加IDE验证和Authorization拆解
+		var hosItems=new Array();
+		var checklist=new Array();//检查列表
+		var b_sortFlag=false;//点击排序的旗帜
+		var old;			//上次点击时选择的医院
+		var ide=$.cookie('ide');
+		$(document).ready(function () {
+			getHospitals('Web');
+			putInHospital(hosItems,'options_Hospital');
+			
+			//搜索按钮功能
+			$('#btn_Search').on('click',function () {
+				//先显示所有同一家医院的检查，在通过filter过滤,附加代码，保证当医院不变时，只从服务器获取一次检查,
+				//医院改变时需要先移除原来的检查
+				var hospital=$('#options_Hospital option:selected').text();
+				var hospitalName=hospital;
+				for (var m=0;m<hosItems.length;m++) {
+					if (hospital==hosItems[m].Name) {
+						hospital=hosItems[m].HID;
+					}
+				}
+				var sernum=$('#input_SerNum').val();
+				var name=$('#input_Name').val();
+				if (!$('#check0').text()) {
+					$('.tbody_showResult').children().remove();
+					if (checklist.length) {
+						checklist.splice(0,checklist.length);
+					}
+					var pids=getUsers('Web',hospital);
+					for (var i=0;i<pids.length;i++) {
+						var checks=getCheckbyUser('Web',hospital,pids[i]);
+						for (var k in checks) {
+							checklist.push(checks[k]);
+						}
+					}
+					putInCheck(checklist,hospitalName,'tbody_showResult');
+					old=hospitalName;
+				}else{
+					if (old!=hospitalName){
+						$('.tbody_showResult').children().remove();
+						if (checklist.length) {
+							checklist.splice(0,checklist.length);
+						}
+						var pids=getUsers('Web',hospital);
+						for (var i=0;i<pids.length;i++) {
+							var checks=getCheckbyUser('Web',hospital,pids[i]);
+							for (var k in checks) {
+								checklist.push(checks[k]);
+							}
+						}
+						putInCheck(checklist,hospitalName,'tbody_showResult');
+						old=hospitalName;
+					}
+				}
+				
+				//再根据是否有姓名或流水号筛选
+				//缺陷：当前过滤只能以tr为单位，只要tr内任意td满足条件则保留，此方法若改为td会导致只隐藏td而不隐藏整个tr
+				//已解决
+				if ($.trim(sernum).length==0&&$.trim(name).length==0) {
+					$('.tr_check').show();
+				};
+				if ($.trim(sernum).length!=0&&$.trim(name).length==0) {
+					//$('.tr_check').hide().filter(":contains('"+sernum+"')").show();
+					$('.tr_check').hide();
+					var s=$('.tr_check>.check_Snum');
+					s=s.filter(':contains("'+sernum+'")');
+					s.parent().show();
+				}
+				if ($.trim(sernum).length!=0&&$.trim(name).length!=0) {
+					$('.tr_check').hide().filter(":contains('"+sernum+"')").filter(":contains('"+name+"')").show();
+				}
+				if ($.trim(sernum).length==0&&$.trim(name).length!=0) {
+					//$('.tr_check').hide().filter(":contains('"+name+"')").show();
+					$('.tr_check').hide();
+					var s=$('.tr_check>.check_User');
+					s=s.filter(':contains("'+name+'")');
+					s.parent().show();
+				}
+				clear_triangle();
+			});
+			
+			//重置按钮的方法
+			$('#btn_Reset').on('click',function () {
+				$('#input_SerNum').val('');
+				$('#input_Name').val('');
+				//$('#options_Hospital').find('option:contains("'+hosItems[0].Name+'")').attr('selected',true);
+				$('#options_Hospital').val(hosItems[0].Name);
+				clear_triangle();
+			});
+			//th点击排序功能
+			$('#th_docname,#th_excatime,#th_name,#th_sernum,#th_isAnalyzed').on('click',function () {
+				var str_th=$(this).text();
+				var arr_check=new Array();
+				for (var i=0;i<checklist.length;i++) {
+					var tr_check=$('#check'+i);
+					arr_check.push(tr_check);
+				}
+				switch (str_th){
+					case '医生':
+						var arr_checkSorted=sortCheck(arr_check,'check_DocName',b_sortFlag);
+						if (b_sortFlag) {
+							$('#th_docname_span').removeClass('glyphicon glyphicon-triangle-bottom').addClass('glyphicon glyphicon-triangle-top');
+						}else{
+							$('#th_docname_span').removeClass('glyphicon glyphicon-triangle-top').addClass('glyphicon glyphicon-triangle-bottom');
+						}
+						b_sortFlag=!b_sortFlag;
+						$('.tbody_showResult').children().remove();
+						$('.tbody_showResult').append(arr_checkSorted);
+						break;
+					case '检查时间':
+						var arr_checkSorted=sortCheck(arr_check,'check_ExamTime',b_sortFlag);
+						if (b_sortFlag) {
+							$('#th_excatime_span').removeClass('glyphicon glyphicon-triangle-bottom').addClass('glyphicon glyphicon-triangle-top');
+						}else{
+							$('#th_excatime_span').removeClass('glyphicon glyphicon-triangle-top').addClass('glyphicon glyphicon-triangle-bottom');
+						}
+						b_sortFlag=!b_sortFlag;
+						$('.tbody_showResult').children().remove();
+						$('.tbody_showResult').append(arr_checkSorted);
+						break;
+					case '姓名':
+						var arr_checkSorted=sortCheck(arr_check,'check_User',b_sortFlag);
+						if (b_sortFlag) {
+							$('#th_name_span').removeClass('glyphicon glyphicon-triangle-bottom').addClass('glyphicon glyphicon-triangle-top');
+						}else{
+							$('#th_name_span').removeClass('glyphicon glyphicon-triangle-top').addClass('glyphicon glyphicon-triangle-bottom');
+						}
+						b_sortFlag=!b_sortFlag;
+						$('.tbody_showResult').children().remove();
+						$('.tbody_showResult').append(arr_checkSorted);
+						break;
+					case '流水号':
+						var arr_checkSorted=sortCheck(arr_check,'check_Snum',b_sortFlag);
+						if (b_sortFlag) {
+							$('#th_sernum_span').removeClass('glyphicon glyphicon-triangle-bottom').addClass('glyphicon glyphicon-triangle-top');
+						}else{
+							$('#th_sernum_span').removeClass('glyphicon glyphicon-triangle-top').addClass('glyphicon glyphicon-triangle-bottom');
+						}
+						b_sortFlag=!b_sortFlag;
+						$('.tbody_showResult').children().remove();
+						$('.tbody_showResult').append(arr_checkSorted);
+						break;
+					case '阅片状态':
+						var arr_checkSorted=sortCheck(arr_check,'check_isAna',b_sortFlag);
+						if (b_sortFlag) {
+							$('#th_isAnalyzed_span').removeClass('glyphicon glyphicon-triangle-bottom').addClass('glyphicon glyphicon-triangle-top');
+						}else{
+							$('#th_isAnalyzed_span').removeClass('glyphicon glyphicon-triangle-top').addClass('glyphicon glyphicon-triangle-bottom');
+						}
+						b_sortFlag=!b_sortFlag;
+						$('.tbody_showResult').children().remove();
+						$('.tbody_showResult').append(arr_checkSorted);
+						break;
+					default:
+						break;
+				}
+			})
+		});
+		//添加医院选项
+		function putInHospital (hosArray,ID) {
+			var str='';
+			for (var k in hosArray) {
+				if (hosArray[k]) {
+					str+='<option>'+hosArray[k].Name+'</option>';
+				}
+			}
+			$('#'+ID).append(str);
+		}
+		//添加检查列表（即动态插入tr）
+		function putInCheck (array,name,cls) {
+			for (var l=0;l<array.length;l++) {
+				var str='<tr class="tr_check" id="check'+l+'" onclick="toDeatail('+l+')">';
+				str+='<td class="check_User">'+array[l].Name+'</td>';
+				str+='<td class="check_Snum">'+array[l].Snum+'</td>';
+				str+='<td class="check_DocName">'+array[l].DocName+'</td>';
+				var time=array[l].Snum.substr(0,8);
+				var year=time.substr(0,4);
+				var month=time.substr(4,2);
+				var day=time.substr(6,2);
+				str+='<td class="check_ExamTime">'+year+'-'+month+'-'+day+'</td>';
+				if (array[l].isAnalyzed=='1') {
+					str+='<td class="check_isAna">已阅片</td>';
+				} else{
+					str+='<td class="check_isAna">未阅片</td>';
+				}
+				$('.'+cls).append(str);
+			}
+		}
+		//获取可访问的医院
+		function getHospitals (url) {
+			$.ajax({
+				type:'get',
+				url:'http://'+comServerIP+'/'+url+'/AccessableHospitalInfo',
+				async:false,
+				headers:{'Authorization':$.cookie('Authorization')},
+				beforeSend:	function(xhr){
+					xhr.setRequestHeader('XXX',ide);
+				},
+				success:function (data,status,xhr) {
+					for (var x in data) {
+						var hosItem=new hosItemC();
+						hosItem.HID=data[x].m_strHID;
+						hosItem.Name=data[x].m_strName;
+						hosItem.Address=data[x].m_strAddress;
+						hosItems.push(hosItem);
+					}
+				},
+				error:function (xhr,status,errorThrown) {
+					console.log(xhr.getAllResponseHeaders());
+				}
+			});
+		}
+		//获取某个医院的全部病人
+		function getUsers (url,HID) {
+			var PIDs=new Array();
+			$.ajax({
+				type:'get',
+				url:'http://'+comServerIP+'/'+url+'/PatientInfo/'+HID+'/00000000',
+				async:false,
+				headers:{'Authorization':$.cookie('Authorization')},
+				beforeSend:	function(xhr){
+					xhr.setRequestHeader('XXX',ide);
+				},
+				success:function (data,status,xhr) {
+					for (var i in data) {
+						var pid=new user(data[i].m_strPID,data[i].m_strName);
+						PIDs.push(pid);
+					}
+				},
+				error:function (xhr,status,errorThrown) {
+					console.log(xhr.getAllResponseHeaders());
+				}
+			});
+			return PIDs;
+		}
+		//获取某个医院某个病人的全部检查
+		function getCheckbyUser (url,HID,user) {
+			var Checks=new Array();
+			$.ajax({
+				type:'get',
+				url:'http://'+comServerIP+'/'+url+'/ExaminationInfo/'+HID+'/'+user.PID+'/00000000',
+				async:false,
+				headers:{'Authorization':$.cookie('Authorization')},
+				beforeSend:	function(xhr){
+					xhr.setRequestHeader('XXX',ide);
+				},
+				success:function (data,status,xhr) {
+					if (data.length>0) {
+						for (var k in data) {
+							if (data[k]) {
+								var check=new Check(data[k].m_iIsAnalyzed,data[k].m_strAuthUsers,data[k].m_strDocName,data[k].m_strExamID,data[k].m_strExamTime,data[k].m_strPID,data[k].m_strSnum,user.Name);
+								Checks.push(check);
+							}	
+						}
+					}
+				},
+				error:function (xhr,status,errorThrown) {
+					console.log(xhr.getAllResponseHeaders());
+				}
+			});
+			return Checks;
+		}
+		//跳转热图详情页
+		var adds=new Array();//热图地址数组
+		function toDeatail (index) {
+			var check=checklist[index];
+			var hospitalHID=$('#options_Hospital option:selected').text();
+			var hospitalName=hospitalHID;
+			for (var m=0;m<hosItems.length;m++) {
+				if (hospitalHID==hosItems[m].Name) {
+					hospitalHID=hosItems[m].HID;
+				}
+			}
+			var infoAdd;			//ExamInformation.xml地址
+			var resultAdd;			//Result.xml地址
+			getCheckAdd(hospitalHID,check.PID,check.ExamID,'Web');
+			var addsLength=adds.length;			//地址数组的长度
+			for (var i=0;i<adds.length;i++) {
+				$.cookie('detail_ID'+i,adds[i]);
+			}
+			$.cookie('ser',check.Snum);
+			$.cookie('checkID',check.ExamID);
+			$.cookie('HID',hospitalHID);
+			$.cookie('PID',check.PID);
+			$.cookie('ID_len',addsLength);
+			$.cookie('Doc',check.DocName);
+			window.open('hot_detail.html');
+		}
+		//获取检查地址
+		function getCheckAdd (HID,PID,ExamID,url) {
+			$.ajax({
+				type:"get",
+				url:'http://'+comServerIP+'/'+url+'/ExaminationFiles/'+HID+'/'+PID+'/'+ExamID,
+				async:false,
+				headers:{'Authorization':$.cookie('Authorization')},
+				beforeSend:	function(xhr){
+					xhr.setRequestHeader('XXX',ide);
+				},
+				success:function (data,status,xhr) {
+					adds.splice(0,adds.length)//插入前需要先清空一下
+					for(var k in data[0]){
+						var suff=data[0][k].substr(data[0][k].length-3,3);
+						if (suff=='dat') {
+							adds.push(data[0][k]);
+						}
+					}
+				},
+				error:function (xhr,status,errorThrown) {
+					console.log(xhr.getAllResponseHeaders());
+				}
+			});
+		}
+		//排序方法,初始flag为false，点击后降序排列，flag置为false
+		function sortCheck (checkArray,prop,flag) {
+			if (flag) {
+				checkArray=checkArray.sort(compareUp(prop));
+				return checkArray;
+			} else{
+				checkArray=checkArray.sort(compareDown(prop));
+				return checkArray;
+			}
+		}
+		//配合sort函数使用,降序排列,sort方法中,若从小到大排，如果第一个小于第二个，则返回负值，若大于则返回正值
+		var compareDown = function (prop) {
+			return function (obj1, obj2) {
+			    var val1 = obj1.find('.'+prop).text();
+			    var val2 = obj2.find('.'+prop).text();
+			    if (val1 < val2) {
+			        return 1;
+			    } else if (val1 > val2) {
+			        return -1;
+			    } else {
+			        return 0;
+				}            
+			}
+		}
+		//升序排列
+		var compareUp = function (prop) {
+			return function (obj1, obj2) {
+			    var val1 = obj1.find('.'+prop).text();
+			    var val2 = obj2.find('.'+prop).text();
+			    if (val1 < val2) {
+			        return -1;
+			    } else if (val1 > val2) {
+			        return 1;
+			    } else {
+			        return 0;
+				}            
+			} 
+		}
+		//清除标题上的排序标志，用于重置或重新搜索时
+		function clear_triangle () {
+			$('#th_docname_span,#th_excatime_span,#th_name_span,#th_sernum_span,#th_isAnalyzed_span').removeClass();
+		}
+		//医院对象构造器	
+		function hosItemC (HID,Name,Address) {
+			this.HID=HID;
+			this.Name=Name;
+			this.Address=Address;
+		}
+		//检查的构造器
+		function Check (isAnalyzed,AuthUsers,DocName,ExamID,ExamTime,PID,Snum,Name) {
+			this.isAnalyzed=isAnalyzed;
+			this.AuthUsers=AuthUsers;
+			this.DocName=DocName;
+			this.ExamID=ExamID;
+			this.ExamTime=ExamTime;
+			this.PID=PID;
+			this.Snum=Snum;
+			this.Name=Name;
+		}
+		//用户对象构造器
+		function user (PID,Name) {
+			this.PID=PID;
+			this.Name=Name;
+		}
+	</script>
+</html>

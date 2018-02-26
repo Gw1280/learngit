@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root username="lucy" age="20" id="00000002" doctor="lucy" Gender="女"	SerialNum=''>
+    <images width='' height=''>
+        <image0 imageName="2017-04-05-16-40-25"  refImageName="" type="0" name="" acupoint="">
+            <rois name="">
+                <Roi0 userdata="0" type="line" name="">
+                    <pt x="118" y="144"/>
+                    <pt x="67" y="88"/>
+                </Roi0>
+                <Roi1 userdata="0" type="point" name="">
+                    <pt x="79" y="38"/>
+                </Roi1>
+                <Roi2 userdata="0" type="rect" name="">
+                    <pt x="245" y="120"/>
+                    <pt x="215" y="120"/>
+                    <pt x="215" y="72"/>
+                    <pt x="245" y="72"/>
+                </Roi2>
+                <Roi3 userdata="0" type="circle" name="">
+                    <pt x="378" y="346"/>
+                    <pt x="234" y="346"/>
+                    <pt x="234" y="292"/>
+                    <pt x="378" y="292"/>
+                    <pt x="306" y="346"/>
+                    <pt x="234" y="319"/>
+                    <pt x="306" y="292"/>
+                    <pt x="378" y="319"/>
+                </Roi3>
+            </rois>
+            <status CurMin="22.82" CurMax="29.17" Width="初始温宽" Percentage="0" PaletteName="0000_5"/>
+        </image0>
+        <image1 imageName="2017-04-05-16-40-26.jpg" refImageName="" type="0" name="" acupoint="">
+            <rois name="">
+                <Roi0 userdata="0" type="rect" name="">
+                    <pt x="167" y="110"/>
+                    <pt x="78" y="110"/>
+                    <pt x="78" y="51"/>
+                    <pt x="167" y="51"/>
+                </Roi0>
+                <Roi1 userdata="0" type="point" name="">
+                    <pt x="131" y="209"/>
+                </Roi1>
+                <Roi2 userdata="0" type="line" name="">
+                    <pt x="235" y="150"/>
+                    <pt x="196" y="83"/>
+                </Roi2>
+            </rois>
+            <status CurMin="22.84" CurMax="29.21" Width="初始温宽" Percentage="0" PaletteName="0000_6"/>
+        </image1>
+        <image2 imageName="2017-04-05-16-40-27.jpg" refImageName="" type="0" name="" acupoint="">
+            <rois name="">
+                <Roi0 userdata="0" type="rect" name="">
+                    <pt x="166" y="122"/>
+                    <pt x="68" y="122"/>
+                    <pt x="68" y="92"/>
+                    <pt x="166" y="92"/>
+                </Roi0>
+            </rois>
+            <status CurMin="22.84" CurMax="29.13" Width="初始温宽" Percentage="0" PaletteName="0000_5"/>
+        </image2>
+    </images>
+    <result></result>
+    <warning>
+        <Red></Red>
+        <Orange></Orange>
+    </warning>
+</root>

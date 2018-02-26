@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="funJs/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/jquery.cookie.js" type="text/javascript" charset="utf-8"></script>
+		<meta charset="UTF-8">
+		<title></title>
+	</head>
+	<body>
+		
+	</body>
+	<script type="text/javascript">
+		$.ajax({
+			type:'get',
+			url:'http://192.168.2.191/web/ExaminationInfoSPC/00000048/1/15',
+			async:false,
+			headers:{'Authorization':$.cookie('Authorization')},
+			beforeSend:	function(xhr){
+				xhr.setRequestHeader('XXX',2);
+			},
+			success:function (data) {
+				console.log(data);
+			},
+			error:function (xhr,status,errorThrown) {
+				console.log(xhr.getAllResponseHeaders());
+			}
+		});
+	</script>
+</html>

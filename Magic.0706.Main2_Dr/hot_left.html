@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>我是热图列表</title>
+		<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css"/>
+		<link rel="stylesheet" type="text/css" href="css/hot_left.css"/>
+		
+		<script src="funJs/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/bootstrap.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/jquery.cookie.js" type="text/javascript" charset="utf-8"></script>
+		<script src="funJs/Common.js" type="text/javascript" charset="utf-8"></script>
+		<script src="funJs/hot_left_fun.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+		</script>
+	</head>
+	<body ng-app="myapp">
+		<div class="container" ng-controller="myctrl">
+			<div class="row" id='hot_left_row1'>
+				<div class="col-lg-12 col-md-12 col-xs-12 col-sm-12 text-center">
+					<div class="panel panel-info">
+						<div class="panel-heading">
+							<h3 class="panel-title text-left">已阅片热图</h3>
+						</div>
+						<div class="panel-body" id="panelbody1">
+							<table class="table success table-hover" id="tb_checkList_ed">
+								<tbody class="tbody_checkList_ed">
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="row" id='hot_left_row2'>
+				<div class="col-lg-12 col-md-12 col-xs-12 col-sm-12 text-center">
+					<div class="panel panel-info">
+						<div class="panel-heading">
+							<h3 class="panel-title text-left" id='unHot'>未阅片热图</h3>
+						</div>
+						<div class="panel-body" id="panelbody2">
+							<table class="table info table-hover tbody_checkList_un" id="tb_checkList_un">
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

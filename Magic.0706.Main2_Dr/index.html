@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>欢迎登陆</title>
+		<link rel="icon" type="text/css" href="img/logosmall.png"/>
+		<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css"/>
+		<link rel="stylesheet" type="text/css" href="css/index.css"/>
+		
+		<script src="funJs/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/bootstrap.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/jquery.cookie.js" type="text/javascript" charset="utf-8"></script>
+		<script src="funJs/md5.js" type="text/javascript" charset="utf-8"></script>
+		<script src="funJs/Common.js" type="text/javascript" charset="utf-8"></script>
+		<script src="funJs/index_fun.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			$(document).ready(function () {
+				var winHeight=$(window).height();
+				$('.foot_pos').height(winHeight*0.16);
+				$('#myCarousel').height(winHeight*0.6);
+				if (winHeight>820) {
+					$('#myCarousel').height(winHeight*0.7);
+				}
+				var wid=$('#tr_pdd').width();
+				$('#td_pdd').width(wid);
+				$("#myCarousel").carousel('cycle');
+				var s=$("#login_password").val;
+ 				var u=$("#login_username").val;
+		 		$("#login_password").keydown(function () {
+		 			$("#pwd_Tips").hide();
+		 			$("#mess_login").hide();
+		 		});
+		 		$("#td_btn").mouseover(function(){
+		 			
+		 			$("#btn_login").css("background-color","#007ff4").css("opacity","0.5");
+		 		}).mouseout(function(){
+		 			$("#btn_login").css("background-color","#007ff4").css("opacity","0.6");
+		 		}) ;
+		 		$("#a_login,#a_ref,#a_sug").mouseover(function(){
+		 			$(this).css("text-decoration","underline");
+		 		}).mouseout(function(){
+		 			$(this).css("text-decoration","none");
+		 		});
+		 		$("#login_username").keydown(function () {
+		 				$("#mess_login").hide();
+		 		});
+			});
+		</script>
+	</head>
+	<body >
+		<div class="containe" style="width: 100%;">
+			<div class="index_head">
+				<a href="index.html"><img src="img/1405499025485.png" id="head_Toho" alt="点击这里跳转到首页"></a>
+			</div>
+			<div class="index_context">
+        <div id="myCarousel" class="carousel slide" data-interval="5000">
+    <!-- 轮播（Carousel）指标 -->
+    <ol class="carousel-indicators">
+        <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
+        <li data-target="#myCarousel" data-slide-to="1"></li>
+        <li data-target="#myCarousel" data-slide-to="2"></li>
+        <li data-target="#myCarousel" data-slide-to="3"></li>
+        <li data-target="#myCarousel" data-slide-to="4"></li>
+    </ol>   
+    <!-- 轮播（Carousel）项目 -->
+    <div class="carousel-inner">
+        <div class="item active">
+            <a href="javascript:void(0);" id='carousel-inner-01'><img src="img/1-130201105055.jpg" alt="First slide"></a>
+        </div>
+        <div class="item">
+            <a href="javascript:void(0);" id='carousel-inner-02'><img src="img/20120723200549_ZhRre.thumb.700_0.jpeg" alt="Second slide"></a>
+        </div>
+        <div class="item">
+            <a href="javascript:void(0);" id='carousel-inner-03'><img src="img/74C58PICgy4_1024.jpg" alt="Third slide"></a>
+        </div>
+         <div class="item">
+            <a href="javascript:void(0);" id='carousel-inner-04'><img src="img/img201008181910520.jpg" alt="Second slide"></a>
+        </div>
+         <div class="item">
+            <a href="javascript:void(0);" id='carousel-inner-05'><img src="img/zweihua11.jpg" alt="Second slide"></a>
+        </div>
+    </div>
+    <!-- 轮播（Carousel）导航 -->
+    <a class="carousel-control left" href="#myCarousel" id="carousel-control-left"
+        data-slide="prev">&lsaquo;
+    </a>
+    <a class="carousel-control right" href="#myCarousel" id="carousel-control-right"
+        data-slide="next">&rsaquo;
+    </a>
+</div>
+        
+	<div class="index_login" id="index_login">
+	<table class="login_tb" id="login_tb" style="border: 1px solid black;">
+		<thead id="login_th">
+			<tr>
+				<th colspan="5">登&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;录</th>
+			</tr>
+		</thead>
+		<tfoot>
+			<tr id="tr_hel">
+				<!--<td id="login_Hel1">
+					<nav><a href="javascript:void(0)" id="a_login">注册账号</a>|
+					<a href="javascript:void(0)" id="a_sug">反馈建议</a>|
+					<a href="javascript:void(0)" id="a_ref">忘记密码</a></nav></td>-->
+			</tr>
+			</tfoot>
+		<tbody id="login_tbd">
+			<tr id="mess_login">
+				<td>您的账号或密码有误</td>
+			</tr>
+			<tr id="tr_username">
+				<td  style="border: 1px solid darkgray;" id="td_username"><input type="text" id="login_username" value="" placeholder="账号" autocomplete="on" /></td>
+			</tr>
+			<tr id="tr_pwd">
+				<td  style="border: 1px solid darkgray;" id="td_pwd"><input type="password" name="" id="login_password" placeholder="密码" /></td>
+			</tr>
+			<tr id="tr_pdd">
+				<td id="td_pdd">
+					<div id="" style="width: 45.5%;float: left;text-align: left;margin-left: 5%;">
+						<input type="radio" name="ide" id="ide_1" value="1" checked="checked" class="identiy"/>客户 
+					</div>
+					<div id="" style="width: 44.5%;float: left;text-align: right;margin-right: 5%;">
+						<input type="radio" name="ide" id="ide_2" value="2" class="identiy"/>医生
+					</div>
+				</td>
+			</tr>
+			<tr id="tr_btn">
+				<td  tyle="border: 1px solid black;" id="td_btn"><input type="button" value="登&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;录" id="btn_login" class="btn"/></td>
+			</tr>
+			<tr id='tr_REM'>
+				<td id='td_REM'><input type="checkbox" id='REM'><span id='REM_tittle'>记住密码</span></td>
+			</tr>
+			
+		</tbody>
+	</table>
+	
+	</div>
+	</div>
+			<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+				<div class="index_footer" style="">
+				<div class="" id="footer">
+					<p class="text-center" id="text">地址：武汉市东湖开发区光谷大道303号光谷芯中心文华楼202</p>
+					<p class="text-center">电话：+86-027-59238398  传真：027-59268391</p>
+					<p class="text-center">版权所有 &copy;武汉迈迪克光电股份有限公司</p>
+  					<p class="text-center"><a href="http://www.miitbeian.gov.cn/" target="_blank">鄂ICP备13013756号-1</a></p>
+				</div>
+			</div>
+			</div>
+		</div>		
+	</body>
+</html>

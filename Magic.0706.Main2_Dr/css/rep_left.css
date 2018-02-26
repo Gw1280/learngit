@@ -1,0 +1,20 @@
+@charset "utf-8";
+	.container{
+		width: 100%;
+	}
+	.col-lg-12{
+		padding: 0;
+		padding-top: 20px;
+	}
+	.panel-body{
+		padding: 5px;
+		height: 500px;
+		overflow: auto;
+	}
+	tr{
+		cursor: pointer;
+	}
+	tr:hover{
+		text-decoration: underline;
+	}
+	

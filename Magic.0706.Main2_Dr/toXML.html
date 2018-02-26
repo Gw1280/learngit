@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<script src="funJs/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/jquery.cookie.js" type="text/javascript" charset="utf-8"></script>
+		<script src="funJs/Common.js" type="text/javascript" charset="utf-8"></script>
+		<title></title>
+	</head>
+	<style type="text/css">
+		.shuru{
+			}
+			#jielun{
+				width: 85%;
+				resize: none;
+			}
+		p{
+			margin: 0;
+		}
+	</style>
+	<body>
+		<div id="_one">
+			<p></p>
+				<input type="image" id="fi" src="img/74C58PICgy4_1024.jpg" name="fileName"/>
+				<button id="asd">选中</button>
+				<form action="http://192.168.2.246/Web/RoiFileInfo/00000001" method="post" id="_test" enctype="multipart/form-data">
+					<input type="text" value="1" name="one"/>
+					<input type="file" name="two" id="" value="" />
+					<input type="file" name="three" id="three" value="" />
+					<input type="submit" value="提交" id="login_password" multiple="multiple"/>
+				</form>
+				<button type="button" id="asd">外部</button>
+		</div>
+		ÕÅÈý
+		%f5
+		<div class="">
+			<p style="float: left;">诊断结论:</p><textarea id="jielun" rows="5"></textarea><br />
+			<p style="float: left;">同意保持:</p><input type="text" id="baochi" class="shuru"/><br />
+			<p style="float: left;">预警信息:</p><input type="text" id="xinxi" class="shuru"/><br />
+			<p style="float: left;">红色预警:</p><input type="text" id="hongyujing" class="shuru"/><br />
+			<p style="float: left;">橙色预警:</p><input type="text" id="chengyujing" class="shuru"/>
+		</div>
+	</body>
+	<script type="text/javascript">
+		var CID=$.cookie('checkID');
+		var test=document.getElementsByTagName('form')[0];
+		var str='';
+		$(document).ready(function () {
+			$('#asd').on('click',function () {
+				var loc=window.localStorage;
+					var a=loc.getItem('imgms'+0);
+					b=a.substring(22);
+				str+='------WebKitFormBoundary2jJY2iKGQKcKq5m4\r\n';
+				str+='Content-Disposition: form-data; name="sendfile"; filename="1234.jpg"\r\n';
+				str+='Content-Type: image/jpeg\r\n';
+				str+='\r\n';
+				str+=b+'\r\n';
+				str+='------WebKitFormBoundary2jJY2iKGQKcKq5m4--';
+				var aa=document.getElementsByTagName('img')[0].src;
+				var Blob=getBlobBydataURI(aa,'image/png');
+				var formData=new FormData();
+				var str_test='123';
+				formData.append('sendfile',Blob,'file_1.png');
+				var request=new XMLHttpRequest();
+				request.open('post','http://192.168.2.246/Web/UploadFiles/00000001');
+				request.setRequestHeader('Authorization',$.cookie('Authorization'));
+				request.onreadystatechange=function () {
+					if (request.readyState==4) {
+						if (request.status==200) {
+						request.getAllResponseHeaders()
+						}
+					}
+				}
+				request.send(formData);
+			})
+		});
+		function getBlobBydataURI (dataURI,type) {
+			var binare=atob(dataURI.split(',')[1]);
+			var array1=[];
+			for (var i=0; i<binare.length;i++) {
+				array1.push(binare.charCodeAt(i));
+			}
+				return new Blob([new Uint8Array(array1)],{type:type});
+			}
+		function aj_one (a) {
+			var aj = $.ajax( {    
+				url:'http://192.168.2.246/Web/RoiFileInfo/'+a,
+				headers:{"Authorization":$.cookie('Authorization')},
+				type:'get',    
+				cache:false,    
+				async:false,
+				success:function(data) {
+					for (var i=0;;i++) {
+						if ($(data).find('image'+i)[0]) {
+						} else{
+							break;
+						}
+					}
+					//直接获取到roi的最底层的x或y的值，根据需要再自行截取
+					console.log(data);
+					console.log($(data).find('images')[0].attributes);
+					console.log($(data).find('image'+0).children('rois').children('roi0').children('pt')[0].attributes.x);
+					console.log($(data).find('image'+0).children('rois').children('roi0')[0].attributes.type);
+					//获取最高温，最低温，温窗以及刻度值，在最后加上value即可直接获取值而不是键值对
+				},
+				error: function(XMLHttpRequest, textStatus, errorThrown) {
+					alert(XMLHttpRequest.status);
+					alert(XMLHttpRequest.readyState);
+					alert(textStatus);
+				}
+			});
+		}
+			function aj_two (a) {
+					$.ajax({
+					type:'get',
+					url:a,
+					dataType:'xml',
+					headers:{"Authorization":$.cookie('Authorization')},
+					timeout:2000,
+					cache:false,
+					async:false,
+					success:function (xml) {
+						console.log(xml);
+					},
+					error: function(XMLHttpRequest, textStatus, errorThrown) {
+						alert(XMLHttpRequest.status);
+						alert(XMLHttpRequest.readyState);
+						alert(textStatus);
+					},
+				})
+			}
+			function aj_tre () {}
+	</script>
+</html>
